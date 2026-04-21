@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Plaza Delfino{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container nav-wrap">
+            <a href="{{ url_for('index') }}" class="brand">Plaza Delfino</a>
+
+            <nav class="main-nav">
+                <a href="{{ url_for('index') }}" class="{% if request.path == '/' %}active{% endif %}">Inicio</a>
+                <a href="{{ url_for('galeria') }}" class="{% if request.path == '/galeria' %}active{% endif %}">Galería</a>
+                <a href="{{ url_for('reservas') }}" class="{% if request.path == '/reservas' %}active{% endif %}">Reservas</a>
+                <a href="{{ url_for('contacto') }}" class="{% if request.path == '/contacto' %}active{% endif %}">Contacto</a>
+            </nav>
+
+            <a href="{{ url_for('reservas') }}" class="btn-top">Reservar ahora</a>
+        </div>
+    </header>
+
+    {% block content %}{% endblock %}
+
+    <footer class="site-footer">
+        <div class="container footer-row">
+            <div class="footer-brand">Plaza Delfino</div>
+
+            <div class="footer-links">
+                <a href="#">Privacidad</a>
+                <a href="#">Términos</a>
+                <a href="#">Prensa</a>
+                <a href="#">Sostenibilidad</a>
+            </div>
+
+            <div class="footer-copy">
+                © 2024 Plaza Delfino. Todos los derechos reservados.
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

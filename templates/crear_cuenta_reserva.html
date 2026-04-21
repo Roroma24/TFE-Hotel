@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}Plaza Delfino | Crear cuenta{% endblock %}
+
+{% block content %}
+<section class="booking-top">
+    <div class="container">
+        <h1>Crear cuenta</h1>
+        <p>
+            Ingrese sus datos básicos para continuar con la reserva.
+        </p>
+    </div>
+</section>
+
+<section>
+    <div class="container booking-layout">
+        <div class="booking-panel">
+            <p class="eyebrow">Segundo paso</p>
+            <h2>Datos de acceso para su reserva</h2>
+
+            <form method="post">
+                <div class="form-grid">
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label>Nombre completo</label>
+                        <input type="text" name="nombre" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Correo electrónico</label>
+                        <input type="email" name="email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input type="text" name="telefono" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-main full-button">
+                    Continuar con la reserva
+                </button>
+            </form>
+        </div>
+
+        <div class="side-stack">
+            <div class="side-panel">
+                <p class="eyebrow">Su perfil</p>
+                <p>
+                    Esta cuenta es simulada y solo se utilizará dentro de esta sesión para avanzar
+                    por el flujo de reserva.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

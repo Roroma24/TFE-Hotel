@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% block title %}Plaza Delfino | Inicio{% endblock %}
+
+{% block content %}
+<section class="hero-home">
+    <div class="container hero-inner">
+        <h1 class="hero-title">Plaza Delfino</h1>
+        <p class="hero-sub">El santuario de la serenidad</p>
+        <a href="{{ url_for('reservas') }}" class="btn-main">Explorar el paraíso</a>
+        <div class="hero-arrow">﹀</div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container split-editorial">
+        <div class="copy">
+            <p class="eyebrow">Bienvenido al origen</p>
+            <h2>Donde el tiempo se rinde ante la belleza.</h2>
+            <p>
+                Plaza Delfino no es solo un destino; es una experiencia curada para los sentidos.
+                Ubicado en el corazón de Alexandria Isle, nuestro resort ofrece una fusión inigualable
+                de arquitectura clásica y confort contemporáneo.
+            </p>
+            <a href="#" class="btn-line">Nuestra historia</a>
+        </div>
+
+        <div class="editorial-image">
+            <img src="{{ url_for('static', filename='images/about-hotel.jpg') }}" alt="Interior Plaza Delfino">
+        </div>
+    </div>
+</section>
+
+<section class="section section-light">
+    <div class="container">
+        <div class="section-heading">
+            <p class="eyebrow center">La curaduría</p>
+            <h2>Experiencias en la Isla</h2>
+        </div>
+
+        <div class="experience-grid">
+            <div class="experience-left">
+                <article class="card-overlay large">
+                    <img src="{{ url_for('static', filename='images/hero-beach.jpg') }}" alt="Archipiélago">
+                    <div class="overlay">
+                        <div>
+                            <div class="mini-label">Gastronomía</div>
+                            <h3>Sabores del Archipiélago</h3>
+                            <p>Una odisea culinaria dirigida por chefs galardonados.</p>
+                        </div>
+                    </div>
+                </article>
+
+                <div style="display:grid;grid-template-columns:1fr 2fr;gap:14px;">
+                    <article class="card-overlay">
+                        <img src="{{ url_for('static', filename='images/infinity-pool.jpg') }}" alt="Bienestar">
+                        <div class="overlay">
+                            <div>
+                                <div class="mini-label">Bienestar</div>
+                                <h3>Santuario del Alma</h3>
+                            </div>
+                        </div>
+                    </article>
+
+                    <div class="blue-info-box">
+                        <div>
+                            <div class="mini-label">Exclusividad</div>
+                            <h3>Navegación Privada</h3>
+                            <p>Descubra calas secretas y playas vírgenes a bordo de nuestra flota privada de yates.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="experience-right">
+                <article class="card-overlay large">
+                    <img src="{{ url_for('static', filename='images/spa.jpg') }}" alt="Aventura">
+                    <div class="overlay">
+                        <div>
+                            <div class="mini-label">Aventura</div>
+                            <h3>Exploración Azul</h3>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container services-grid">
+        <div class="services-main">
+            <h2>Servicios Exclusivos</h2>
+            <p>Elevamos el estándar del lujo hacia una experiencia más íntima y significativa.</p>
+            <a href="#" class="btn-line">Ver todos los servicios</a>
+        </div>
+
+        <div class="service-list">
+            <div class="service-item">
+                <h4>Spa Holístico</h4>
+                <p>Tratamientos inspirados en rituales antiguos con ingredientes botánicos de la isla.</p>
+            </div>
+
+            <div class="service-item">
+                <h4>Cenas Privadas</h4>
+                <p>Experiencias gastronómicas bajo las estrellas diseñadas por nuestro chef ejecutivo.</p>
+            </div>
+        </div>
+
+        <div class="service-list">
+            <div class="service-item">
+                <h4>Charter Privado</h4>
+                <p>Explore calas vírgenes y atolones remotos a bordo de nuestra flota exclusiva.</p>
+            </div>
+
+            <div class="service-item">
+                <h4>Club Deportivo</h4>
+                <p>Instalaciones de vanguardia con entrenadores personales certificados.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="map-band">
+    <div class="container">
+        <div class="map-panel">
+            <div class="map-badge">
+                <strong>Ubicación Privilegiada</strong>
+                <span>Lote 42, Bahía del Coral, Plaza Delfino</span>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

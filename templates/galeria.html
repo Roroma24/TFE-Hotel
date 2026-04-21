@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block title %}Plaza Delfino | Galería{% endblock %}
+
+{% block content %}
+<section class="gallery-top">
+    <div class="container">
+        <p class="eyebrow center">Experiencia visual</p>
+        <h1 class="page-title center">Plaza Delfino</h1>
+        <p class="page-subtitle center">
+            Una curaduría de momentos, desde el amanecer sobre las aguas turquesas
+            hasta los detalles arquitectónicos que definen nuestro santuario en la isla.
+        </p>
+
+        <div class="gallery-tabs">
+            <span class="active">Todo</span>
+            <a href="#">Arquitectura</a>
+            <a href="#">Naturaleza</a>
+            <a href="#">Gastronomía</a>
+            <a href="#">Wellness</a>
+        </div>
+    </div>
+</section>
+
+<section>
+    <div class="container">
+        <div class="gallery-grid">
+            <div class="gallery-card">
+                <img src="{{ url_for('static', filename='images/infinity-pool.jpg') }}" alt="Horizonte">
+                <small>Exterior</small>
+                <h3>El Reflejo del Horizonte</h3>
+                <p>Nuestra piscina infinita se funde con el mar Caribe en un abrazo eterno.</p>
+            </div>
+
+            <div class="gallery-column">
+                <div class="gallery-card tall">
+                    <img src="{{ url_for('static', filename='images/about-hotel.jpg') }}" alt="Interior">
+                    <small>Interior</small>
+                    <h3>Esencia Minimalista</h3>
+                    <p>Materiales orgánicos que respiran la paz de la isla.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="gallery-row-3">
+            <div class="gallery-card">
+                <img src="{{ url_for('static', filename='images/restaurant.jpg') }}" alt="Sabores">
+                <small>Gastronomía</small>
+                <h3>Sabores de la Isla</h3>
+            </div>
+
+            <div class="gallery-card">
+                <img src="{{ url_for('static', filename='images/hero-beach.jpg') }}" alt="Aguas">
+                <small>Naturaleza</small>
+                <h3>Aguas Turquesas</h3>
+            </div>
+
+            <div class="gallery-card">
+                <img src="{{ url_for('static', filename='images/spa.jpg') }}" alt="Veladas">
+                <small>Arquitectura</small>
+                <h3>Veladas de Plaza Delfino</h3>
+            </div>
+        </div>
+
+        <div class="video-banner">
+            <img src="{{ url_for('static', filename='images/hero-beach.jpg') }}" alt="Cortometraje">
+            <div class="play-center">
+                <div>
+                    <div class="video-button">▶</div>
+                    <div style="text-transform:uppercase;letter-spacing:4px;font-size:0.74rem;">Ver el cortometraje</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="cta-box">
+            <h2>Comience su historia con nosotros.</h2>
+            <div class="cta-actions">
+                <a href="{{ url_for('reservas') }}" class="btn-main">Ver disponibilidad</a>
+                <a href="#" class="btn-line">Descargar catálogo</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

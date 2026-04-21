@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Plaza Delfino | Admin Login{% endblock %}
+
+{% block content %}
+<section class="admin-login-wrap">
+    <div class="admin-login-card">
+        <p class="eyebrow">Modo administrador</p>
+        <h1>Acceso de administración</h1>
+        <p class="admin-login-text">
+            Ingrese con las credenciales de administrador para consultar el estado de las reservas,
+            ganancias y ocupación de habitaciones.
+        </p>
+
+        {% if error %}
+            <div class="form-error-box">{{ error }}</div>
+        {% endif %}
+
+        <form method="post" class="admin-form">
+            <div class="form-group">
+                <label>Usuario</label>
+                <input type="text" name="usuario" required>
+            </div>
+
+            <div class="form-group">
+                <label>Contraseña</label>
+                <input type="password" name="password" required>
+            </div>
+
+            <button type="submit" class="btn-main full-button">
+                Iniciar sesión
+            </button>
+        </form>
+    </div>
+</section>
+{% endblock %}

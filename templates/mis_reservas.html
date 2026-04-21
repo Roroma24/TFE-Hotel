@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Plaza Delfino | Mis reservas{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="page-intro">
+            <p class="eyebrow">Área privada</p>
+            <h1>Mis reservas</h1>
+            <p>Aquí se muestran únicamente las reservas del usuario con sesión iniciada.</p>
+        </div>
+
+        {% if reservas %}
+            <div class="reservations-list">
+                {% for reserva in reservas %}
+                <article class="reservation-item">
+                    <span class="badge">{{ reserva.estado }}</span>
+                    <h3>{{ reserva.habitacion.nombre }}</h3>
+
+                    <div class="info-item">
+                        <span>Folio</span>
+                        <strong>{{ reserva.folio }}</strong>
+                    </div>
+
+                    <div class="info-item">
+                        <span>Fechas</span>
+                        <strong>{{ reserva.fecha_entrada }} → {{ reserva.fecha_salida }}</strong>
+                    </div>
+
+                    <div class="info-item">
+                        <span>Huéspedes</span>
+                        <strong>{{ reserva.huespedes }}</strong>
+                    </div>
+
+                    <div class="info-item">
+                        <span>Noches</span>
+                        <strong>{{ reserva.noches }}</strong>
+                    </div>
+
+                    <div class="info-item">
+                        <span>Total pagado</span>
+                        <strong>${{ reserva.total }}</strong>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <h2 style="font-family: var(--font-serif); font-weight: 500; margin-bottom: 12px;">Aún no tiene reservas</h2>
+                <p class="text-muted" style="margin-bottom: 20px;">
+                    Cuando confirme una estancia, aparecerá en este apartado.
+                </p>
+                <a href="{{ url_for('reservas') }}" class="btn btn-primary">Reservar ahora</a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% block title %}Plaza Delfino | Contacto{% endblock %}
+
+{% block content %}
+<section class="contact-hero">
+    <div class="hero-content">
+        <p class="eyebrow center">Atención exclusiva</p>
+        <h1>Contacto</h1>
+        <div class="hero-line"></div>
+    </div>
+</section>
+
+<section class="contact-overlap">
+    <div class="container">
+        <div class="contact-grid">
+            <div class="form-card">
+                <h2>Envíenos un mensaje</h2>
+                <p>
+                    Nuestro equipo de hospitalidad está a su entera disposición para coordinar
+                    cada detalle de su próxima estancia.
+                </p>
+
+                <form class="form-minimal">
+                    <div class="form-minimal two">
+                        <div class="line-field">
+                            <label>Nombre completo</label>
+                            <input type="text" placeholder="Su nombre...">
+                        </div>
+
+                        <div class="line-field">
+                            <label>Email</label>
+                            <input type="email" placeholder="correo@ejemplo.com">
+                        </div>
+                    </div>
+
+                    <div class="line-field">
+                        <label>Asunto</label>
+                        <input type="text" placeholder="Motivo de su consulta">
+                    </div>
+
+                    <div class="line-field">
+                        <label>Mensaje</label>
+                        <textarea placeholder="¿Cómo podemos asistirle?"></textarea>
+                    </div>
+
+                    <div class="form-submit">
+                        <button type="button" class="btn-main">Enviar solicitud</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="right-contact-stack">
+                <div class="info-card">
+                    <div class="info-top">
+                        <img class="info-thumb" src="{{ url_for('static', filename='images/about-hotel.jpg') }}" alt="Atención">
+                        <div>
+                            <h3>Atención Personalizada</h3>
+                            <span>Servicio concierge 24/7</span>
+                        </div>
+                    </div>
+
+                    <div class="info-divider"></div>
+
+                    <div class="info-line">
+                        <strong>Teléfono directo</strong>
+                        <p>+34 900 123 456</p>
+                    </div>
+
+                    <div class="info-line">
+                        <strong>Email de reservas</strong>
+                        <p>hola@plazadelfino.com</p>
+                    </div>
+                </div>
+
+                <div class="location-card">
+                    <img src="{{ url_for('static', filename='images/hero-beach.jpg') }}" alt="Ubicación">
+                    <div class="location-badge">
+                        <small>Ubicación privilegiada</small>
+                        <h4>Costa de los Delfines, S/N</h4>
+                        <p>07184, Calvià, Illes Balears</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-contact-grid">
+            <div class="hours-card">
+                <h3>Nuestros Horarios</h3>
+
+                <div class="hour-line">
+                    <span>Recepción</span>
+                    <strong>24 Horas</strong>
+                </div>
+
+                <div class="hour-line">
+                    <span>Spa & Wellness</span>
+                    <strong>08:00 — 22:00</strong>
+                </div>
+
+                <div class="hour-line">
+                    <span>Restaurante Gourmet</span>
+                    <strong>13:00 — 00:00</strong>
+                </div>
+            </div>
+
+            <div class="social-card">
+                <h3>Síganos en la Riviera</h3>
+                <p>
+                    Descubra el estilo de vida Plaza Delfino a través de nuestros canales oficiales.
+                </p>
+
+                <div class="social-links">
+                    <a href="#">Instagram</a>
+                    <a href="#">LinkedIn</a>
+                    <a href="#">Facebook</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
