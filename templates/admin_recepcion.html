@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plaza Delfino | Recepción</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: "Inter", sans-serif; background: #f5f7fb; color: #1f2937; }
+        a { text-decoration: none; color: inherit; }
+
+        .shell {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background: #f1f4f9;
+            border-right: 1px solid #e5eaf2;
+            padding: 26px 18px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .brand h1 {
+            font-size: 28px;
+            font-weight: 800;
+            color: #2563eb;
+            margin-bottom: 6px;
+        }
+
+        .brand p {
+            font-size: 11px;
+            color: #8b98ab;
+            letter-spacing: 1.6px;
+            text-transform: uppercase;
+        }
+
+        .nav {
+            margin-top: 34px;
+            display: grid;
+            gap: 8px;
+        }
+
+        .nav a {
+            padding: 13px 14px;
+            border-radius: 12px;
+            color: #6b7280;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .nav a.active,
+        .nav a:hover {
+            background: #ffffff;
+            color: #2563eb;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 14px 16px;
+            background: #2563eb;
+            color: #fff;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .main {
+            padding: 24px;
+        }
+
+        .hero {
+            display: flex;
+            justify-content: space-between;
+            gap: 18px;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .hero h2 {
+            font-size: 38px;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+
+        .hero p {
+            color: #8b98ab;
+            font-size: 14px;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-light {
+            background: white;
+            border: 1px solid #e7ebf2;
+            color: #6b7280;
+            border-radius: 12px;
+            padding: 11px 16px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .panel {
+            background: #ffffff;
+            border: 1px solid #e8edf4;
+            border-radius: 18px;
+            padding: 20px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+            margin-bottom: 18px;
+        }
+
+        .panel h3 {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 14px;
+        }
+
+        .room-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+        }
+
+        .room-card {
+            border-radius: 18px;
+            padding: 18px;
+            border: 1px solid #e8edf4;
+            background: #ffffff;
+        }
+
+        .room-card.libre { background: #f8fbff; border-color: #d9e8ff; }
+        .room-card.reservada { background: #fffaf0; border-color: #f4dfb5; }
+        .room-card.ocupada { background: #fff4f4; border-color: #f0c4c4; }
+
+        .room-card h4 {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+
+        .room-card p {
+            font-size: 13px;
+            color: #4b5563;
+            margin-bottom: 6px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .btn-success, .btn-danger {
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-success { background: #16a34a; }
+        .btn-danger { background: #dc2626; }
+
+        .table-wrap { overflow-x: auto; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px;
+        }
+
+        th, td {
+            padding: 14px 10px;
+            text-align: left;
+            border-bottom: 1px solid #eef2f7;
+            font-size: 13px;
+        }
+
+        th {
+            color: #94a3b8;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.9px;
+            font-weight: 700;
+        }
+
+        .empty {
+            color: #94a3b8;
+            font-size: 14px;
+            padding: 10px 0;
+        }
+
+        @media (max-width: 1200px) {
+            .room-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        @media (max-width: 900px) {
+            .shell { grid-template-columns: 1fr; }
+            .sidebar { border-right: none; border-bottom: 1px solid #e5eaf2; }
+            .room-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .room-grid { grid-template-columns: 1fr; }
+            .hero h2 { font-size: 30px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <aside class="sidebar">
+            <div>
+                <div class="brand">
+                    <h1>Plaza Delfino</h1>
+                    <p>Recepción</p>
+                </div>
+
+                <nav class="nav">
+                    <a href="{{ url_for('admin_recepcion') }}" class="active">Recepción</a>
+                    <a href="{{ url_for('admin_bookings') }}">Check-in / Check-out</a>
+                    <a href="{{ url_for('admin_nueva_reservacion') }}">Nueva reservación</a>
+                    <a href="{{ url_for('admin_logout') }}">Cerrar sesión</a>
+                </nav>
+            </div>
+
+            <div>
+                <a href="{{ url_for('admin_nueva_reservacion') }}" class="btn-primary">+ Crear reservación</a>
+            </div>
+        </aside>
+
+        <main class="main">
+            <div class="hero">
+                <div>
+                    <h2>Panel de Recepción</h2>
+                    <p>Aquí solo se muestran reservaciones activas, habitaciones y operación de check-in / check-out.</p>
+                </div>
+
+                <div class="hero-actions">
+                    <a href="{{ url_for('admin_nueva_reservacion') }}" class="btn-light">Nueva reservación</a>
+                    <a href="{{ url_for('admin_bookings') }}" class="btn-light">Ir a bookings</a>
+                </div>
+            </div>
+
+            <section class="panel">
+                <h3>Habitaciones</h3>
+
+                <div class="room-grid">
+                    {% for habitacion in habitaciones %}
+                        <article class="room-card {{ habitacion.estado_visual }}">
+                            <h4>Room {{ habitacion.numero }}</h4>
+                            <p><strong>{{ habitacion.nombre }}</strong></p>
+                            <p>{{ habitacion.tipo }}</p>
+
+                            {% if habitacion.estado_visual != 'libre' %}
+                                <p><strong>Cliente:</strong> {{ habitacion.cliente }}</p>
+                                <p><strong>Fechas:</strong> {{ habitacion.entrada }} → {{ habitacion.salida }}</p>
+
+                                <div class="actions">
+                                    {% if habitacion.estado_visual == 'reservada' %}
+                                        <a href="{{ url_for('admin_check_in', folio=habitacion.folio) }}" class="btn-success">Check-in</a>
+                                    {% elif habitacion.estado_visual == 'ocupada' %}
+                                        <a href="{{ url_for('admin_check_out', folio=habitacion.folio) }}" class="btn-danger">Check-out</a>
+                                    {% endif %}
+                                </div>
+                            {% else %}
+                                <p><strong>Estado:</strong> Libre</p>
+                            {% endif %}
+                        </article>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section class="panel">
+                <h3>Reservaciones activas</h3>
+
+                {% if activas %}
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Habitación</th>
+                                    <th>Cliente</th>
+                                    <th>Entrada</th>
+                                    <th>Salida</th>
+                                    <th>Noches</th>
+                                    <th>Total</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for habitacion in activas %}
+                                    <tr>
+                                        <td>{{ habitacion.numero }} - {{ habitacion.nombre }}</td>
+                                        <td>{{ habitacion.cliente }}</td>
+                                        <td>{{ habitacion.entrada }}</td>
+                                        <td>{{ habitacion.salida }}</td>
+                                        <td>{{ habitacion.noches }}</td>
+                                        <td>${{ habitacion.total }}</td>
+                                        <td>
+                                            {% if habitacion.estado_visual == 'reservada' %}
+                                                <a href="{{ url_for('admin_check_in', folio=habitacion.folio) }}" class="btn-success">Check-in</a>
+                                            {% elif habitacion.estado_visual == 'ocupada' %}
+                                                <a href="{{ url_for('admin_check_out', folio=habitacion.folio) }}" class="btn-danger">Check-out</a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="empty">No hay reservaciones activas por el momento.</div>
+                {% endif %}
+            </section>
+        </main>
+    </div>
+</body>
+</html>

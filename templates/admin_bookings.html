@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plaza Delfino | Clients</title>
+    <title>Plaza Delfino | Bookings</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * {
@@ -198,13 +198,18 @@
         }
 
         .btn-light,
-        .btn-primary {
+        .btn-primary,
+        .btn-success,
+        .btn-danger {
             border-radius: 12px;
             padding: 11px 16px;
             font-size: 12px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .btn-light {
@@ -217,6 +222,16 @@
             background: #2563eb;
             color: #fff;
             box-shadow: 0 10px 22px rgba(37, 99, 235, 0.18);
+        }
+
+        .btn-success {
+            background: #16a34a;
+            color: #fff;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: #fff;
         }
 
         .stats-grid {
@@ -265,6 +280,7 @@
             border-radius: 18px;
             padding: 20px;
             box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+            margin-bottom: 18px;
         }
 
         .panel-head {
@@ -290,87 +306,98 @@
             font-weight: 700;
         }
 
-        .panel-link {
-            font-size: 11px;
-            color: #2563eb;
-            text-transform: uppercase;
-            font-weight: 700;
-            letter-spacing: 0.8px;
-        }
-
-        .clients-grid {
+        .room-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(5, 1fr);
             gap: 16px;
-            margin-bottom: 18px;
         }
 
-        .client-card {
-            background: #ffffff;
-            border: 1px solid #e8edf4;
+        .room-card {
             border-radius: 18px;
             padding: 18px;
-            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+            border: 1px solid #e8edf4;
+            background: #ffffff;
         }
 
-        .client-top {
+        .room-card.libre {
+            background: #f8fbff;
+            border-color: #d9e8ff;
+        }
+
+        .room-card.reservada {
+            background: #fffaf0;
+            border-color: #f4dfb5;
+        }
+
+        .room-card.ocupada {
+            background: #fff4f4;
+            border-color: #f0c4c4;
+        }
+
+        .room-head {
             display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 16px;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 14px;
         }
 
-        .client-avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
-            color: #1d4ed8;
-            display: grid;
-            place-items: center;
+        .room-head h4 {
+            font-size: 20px;
             font-weight: 800;
-            font-size: 16px;
+            color: #18212f;
+            margin-bottom: 3px;
         }
 
-        .client-top strong {
-            display: block;
-            font-size: 15px;
-            color: #1f2937;
-            margin-bottom: 2px;
-        }
-
-        .client-top small {
-            color: #9aa4b2;
+        .room-head p {
+            color: #8b98ab;
             font-size: 12px;
         }
 
-        .client-metrics {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-top: 12px;
-        }
-
-        .metric-box {
-            background: #f8fafc;
-            border: 1px solid #eef2f7;
-            border-radius: 14px;
-            padding: 12px;
-        }
-
-        .metric-box span {
-            display: block;
-            font-size: 10px;
+        .state-pill {
+            padding: 7px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 0.8px;
-            color: #94a3b8;
-            font-weight: 700;
-            margin-bottom: 6px;
+            white-space: nowrap;
         }
 
-        .metric-box strong {
-            font-size: 16px;
+        .state-pill.libre {
+            background: #e8f3ff;
+            color: #2563eb;
+        }
+
+        .state-pill.reservada {
+            background: #fff0d9;
+            color: #d97706;
+        }
+
+        .state-pill.ocupada {
+            background: #ffe0e0;
+            color: #dc2626;
+        }
+
+        .room-info {
+            display: grid;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .room-info div {
+            font-size: 13px;
+            color: #4b5563;
+        }
+
+        .room-info strong {
             color: #1f2937;
+        }
+
+        .room-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px;
         }
 
         .table-wrap {
@@ -380,7 +407,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 1100px;
+            min-width: 1050px;
         }
 
         th, td {
@@ -402,44 +429,6 @@
             color: #374151;
         }
 
-        .guest-cell strong {
-            display: block;
-            font-size: 13px;
-            color: #1f2937;
-            margin-bottom: 2px;
-        }
-
-        .guest-cell small {
-            color: #9aa4b2;
-            font-size: 11px;
-        }
-
-        .tier-pill {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 7px 10px;
-            border-radius: 999px;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .tier-pill.gold {
-            background: #fff7e6;
-            color: #d97706;
-        }
-
-        .tier-pill.silver {
-            background: #eef2ff;
-            color: #4f46e5;
-        }
-
-        .tier-pill.basic {
-            background: #eff6ff;
-            color: #2563eb;
-        }
-
         .empty-state {
             padding: 28px 10px 6px;
             color: #94a3b8;
@@ -458,9 +447,12 @@
             letter-spacing: 0.8px;
         }
 
-        @media (max-width: 1200px) {
-            .stats-grid,
-            .clients-grid {
+        @media (max-width: 1300px) {
+            .room-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
         }
@@ -474,6 +466,10 @@
                 border-right: none;
                 border-bottom: 1px solid #e5eaf2;
             }
+
+            .room-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
 
         @media (max-width: 768px) {
@@ -484,7 +480,7 @@
             }
 
             .stats-grid,
-            .clients-grid {
+            .room-grid {
                 grid-template-columns: 1fr;
             }
 
@@ -509,10 +505,8 @@
 
                 <nav class="side-nav">
                     <a href="{{ url_for('admin_dashboard') }}">▣ Dashboard</a>
-                    <a href="{{ url_for('admin_dashboard') }}#room-status">▤ Room Status</a>
-                    <a href="{{ url_for('admin_bookings') }}">◫ Bookings</a>
-                    <a href="{{ url_for('admin_clients') }}" class="active">◎ Clients</a>
-                    <a href="{{ url_for('admin_dashboard') }}#analytics">◌ Analytics</a>
+                    <a href="{{ url_for('admin_bookings') }}" class="active">◫ Bookings</a>
+                    <a href="{{ url_for('admin_clients') }}">◎ Clients</a>
                     <a href="{{ url_for('admin_logout') }}">↩ Logout</a>
                 </nav>
             </div>
@@ -524,7 +518,7 @@
 
         <main class="admin-main">
             <div class="topbar">
-                <div class="search-box">&nbsp; Search client profiles...</div>
+                <div class="search-box">🔎&nbsp; Search room number or guest...</div>
 
                 <div class="topbar-right">
                     <div class="icon-circle">🔔</div>
@@ -542,149 +536,147 @@
 
             <div class="hero-row">
                 <div>
-                    <h2>Client Database</h2>
-                    <p>Guest profiles generated from confirmed reservations.</p>
+                    <h2>Booking Control</h2>
+                    <p>Supervisión operativa de habitaciones libres, reservadas y ocupadas.</p>
                 </div>
 
                 <div class="hero-actions">
                     <a href="{{ url_for('admin_dashboard') }}" class="btn-light">Back to Dashboard</a>
-                    <a href="#" class="btn-primary">Client Records</a>
+                    <a href="{{ url_for('admin_nueva_reservacion') }}" class="btn-primary">New Booking</a>
                 </div>
             </div>
 
             <div class="stats-grid">
                 <article class="stat-card">
-                    <span>Total Clients</span>
-                    <strong>{{ total_clientes }}</strong>
-                    <small>Perfiles únicos detectados</small>
+                    <span>Total Rooms</span>
+                    <strong>{{ habitaciones|length }}</strong>
+                    <small>Inventario disponible en el sistema</small>
                 </article>
 
                 <article class="stat-card">
-                    <span>Active Clients</span>
-                    <strong>{{ clientes_activos }}</strong>
-                    <small>Clientes con al menos una reserva</small>
+                    <span>Free Rooms</span>
+                    <strong>{{ libres }}</strong>
+                    <small>Habitaciones actualmente libres</small>
                 </article>
 
                 <article class="stat-card">
-                    <span>Client Revenue</span>
-                    <strong>${{ ingresos_clientes }}</strong>
-                    <small>Ingreso total acumulado</small>
+                    <span>Reserved</span>
+                    <strong>{{ reservadas }}</strong>
+                    <small>Reservas pagadas aún sin check-in</small>
                 </article>
 
                 <article class="stat-card">
-                    <span>Reserved Nights</span>
-                    <strong>{{ noches_clientes }}</strong>
-                    <small>Noches vinculadas a clientes</small>
+                    <span>Occupied</span>
+                    <strong>{{ ocupadas }}</strong>
+                    <small>Habitaciones con check-in realizado</small>
                 </article>
             </div>
 
-            {% if clientes %}
-                <section class="clients-grid">
-                    {% for cliente in clientes[:6] %}
-                        {% set iniciales = cliente.nombre[:1].upper() %}
-                        <article class="client-card">
-                            <div class="client-top">
-                                <div class="client-avatar">{{ iniciales }}</div>
+            <section class="panel">
+                <div class="panel-head">
+                    <div>
+                        <h3>Room Status Board</h3>
+                        <p>Vista general de habitaciones</p>
+                    </div>
+                </div>
+
+                <div class="room-grid">
+                    {% for habitacion in habitaciones %}
+                        <article class="room-card {{ habitacion.estado_visual }}">
+                            <div class="room-head">
                                 <div>
-                                    <strong>{{ cliente.nombre }}</strong>
-                                    <small>{{ cliente.email }}</small>
+                                    <h4>Room {{ habitacion.id }}</h4>
+                                    <p>{{ habitacion.nombre }} · {{ habitacion.tipo }}</p>
                                 </div>
+
+                                <span class="state-pill {{ habitacion.estado_visual }}">
+                                    {{ habitacion.estado_visual }}
+                                </span>
                             </div>
 
-                            <div class="client-metrics">
-                                <div class="metric-box">
-                                    <span>Reservas</span>
-                                    <strong>{{ cliente.reservas }}</strong>
-                                </div>
+                            <div class="room-info">
+                                <div><strong>Tarifa:</strong> ${{ habitacion.precio }}</div>
 
-                                <div class="metric-box">
-                                    <span>Noches</span>
-                                    <strong>{{ cliente.noches }}</strong>
-                                </div>
-
-                                <div class="metric-box">
-                                    <span>Gastado</span>
-                                    <strong>${{ cliente.gastado }}</strong>
-                                </div>
-
-                                <div class="metric-box">
-                                    <span>Teléfono</span>
-                                    <strong>{{ cliente.telefono }}</strong>
-                                </div>
+                                {% if habitacion.estado_visual != 'libre' %}
+                                    <div><strong>Cliente:</strong> {{ habitacion.cliente }}</div>
+                                    <div><strong>Fechas:</strong> {{ habitacion.entrada }} → {{ habitacion.salida }}</div>
+                                    <div><strong>Folio:</strong> {{ habitacion.folio }}</div>
+                                {% else %}
+                                    <div><strong>Estado:</strong> Disponible para nueva reserva</div>
+                                    <div><strong>Cliente:</strong> Sin asignar</div>
+                                {% endif %}
                             </div>
+
+                            {% if habitacion.estado_visual == 'reservada' %}
+                                <div class="room-actions">
+                                    <a href="{{ url_for('admin_check_in', folio=habitacion.folio) }}" class="btn-success">Check-in</a>
+                                </div>
+                            {% elif habitacion.estado_visual == 'ocupada' %}
+                                <div class="room-actions">
+                                    <a href="{{ url_for('admin_check_out', folio=habitacion.folio) }}" class="btn-danger">Check-out</a>
+                                </div>
+                            {% endif %}
                         </article>
                     {% endfor %}
-                </section>
+                </div>
+            </section>
 
-                <section class="panel">
-                    <div class="panel-head">
-                        <div>
-                            <h3>Full Client List</h3>
-                            <p>Detailed guest profiles</p>
-                        </div>
-
-                        <a href="{{ url_for('admin_dashboard') }}" class="panel-link">Return to overview</a>
+            <section class="panel">
+                <div class="panel-head">
+                    <div>
+                        <h3>Operational Bookings</h3>
+                        <p>Reservas activas para operación</p>
                     </div>
+                </div>
 
+                {% if activas %}
                     <div class="table-wrap">
                         <table>
                             <thead>
                                 <tr>
+                                    <th>Room</th>
                                     <th>Guest</th>
-                                    <th>Phone</th>
-                                    <th>Reservations</th>
-                                    <th>Nights</th>
-                                    <th>Total Spent</th>
-                                    <th>Last Room</th>
+                                    <th>Status</th>
                                     <th>Stay Dates</th>
-                                    <th>Loyalty</th>
+                                    <th>Nights</th>
+                                    <th>Total</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for cliente in clientes %}
-                                    {% if cliente.gastado >= 2000 %}
-                                        {% set tier_class = 'gold' %}
-                                        {% set tier_text = 'Gold' %}
-                                    {% elif cliente.gastado >= 1000 %}
-                                        {% set tier_class = 'silver' %}
-                                        {% set tier_text = 'Silver' %}
-                                    {% else %}
-                                        {% set tier_class = 'basic' %}
-                                        {% set tier_text = 'Basic' %}
-                                    {% endif %}
-
+                                {% for habitacion in activas %}
                                     <tr>
-                                        <td class="guest-cell">
-                                            <strong>{{ cliente.nombre }}</strong>
-                                            <small>{{ cliente.email }}</small>
-                                        </td>
-                                        <td>{{ cliente.telefono }}</td>
-                                        <td>{{ cliente.reservas }}</td>
-                                        <td>{{ cliente.noches }}</td>
-                                        <td>${{ cliente.gastado }}</td>
-                                        <td>{{ cliente.ultima_habitacion }}</td>
-                                        <td>{{ cliente.ultima_entrada }} → {{ cliente.ultima_salida }}</td>
+                                        <td>{{ habitacion.id }} - {{ habitacion.nombre }}</td>
+                                        <td>{{ habitacion.cliente }}</td>
+                                        <td>{{ habitacion.estado_visual }}</td>
+                                        <td>{{ habitacion.entrada }} → {{ habitacion.salida }}</td>
+                                        <td>{{ habitacion.noches }}</td>
+                                        <td>${{ habitacion.total }}</td>
                                         <td>
-                                            <span class="tier-pill {{ tier_class }}">{{ tier_text }}</span>
+                                            {% if habitacion.estado_visual == 'reservada' %}
+                                                <a href="{{ url_for('admin_check_in', folio=habitacion.folio) }}" class="btn-success">Check-in</a>
+                                            {% elif habitacion.estado_visual == 'ocupada' %}
+                                                <a href="{{ url_for('admin_check_out', folio=habitacion.folio) }}" class="btn-danger">Check-out</a>
+                                            {% else %}
+                                                —
+                                            {% endif %}
                                         </td>
                                     </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
                     </div>
-                </section>
-            {% else %}
-                <section class="panel">
+                {% else %}
                     <div class="empty-state">
-                        Todavía no hay clientes porque aún no existen reservas confirmadas.
+                        Aún no hay reservas activas. Todas las habitaciones aparecen libres.
                     </div>
-                </section>
-            {% endif %}
+                {% endif %}
+            </section>
 
             <div class="footer-mini">
                 <span>© 2024 Plaza Delfino Management Group</span>
-                <span>Client Module Active</span>
-                <span>Privacy Policy</span>
+                <span>Booking Module Active</span>
+                <span>Room Flow: Live</span>
                 <span>Support Portal</span>
             </div>
         </main>

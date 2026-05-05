@@ -557,14 +557,14 @@
                 <nav class="side-nav">
                     <a href="{{ url_for('admin_dashboard') }}" class="active">▣ Dashboard</a>
                     <a href="#room-status">▤ Room Status</a>
-                    <a href="#bookings">◫ Bookings</a>
-                    <a href="{{ url_for('admin_clients') }}">◎ Clients</a>git remote -v
+                    <a href="{{ url_for('admin_bookings') }}">◫ Bookings</a>
+                    <a href="{{ url_for('admin_clients') }}">◎ Clients</a>
                     <a href="{{ url_for('admin_logout') }}">↩ Logout</a>
                 </nav>
             </div>
 
             <div class="side-bottom">
-                <a href="{{ url_for('reservas') }}" class="new-booking-btn">＋ New Booking</a>
+                <a href="{{ url_for('admin_nueva_reservacion') }}" class="new-booking-btn">＋ New Booking</a>
             </div>
         </aside>
 
