@@ -6,6 +6,9 @@ import math
 import mysql.connector
 from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash, check_password_hash
+from patterns.observer import gestor_eventos, ObservadorCorreo, ObservadorHabitacion, ObservadorLog
+from patterns.facade   import ServicioReservas
+from patterns.builder  import DirectorReporte, BuilderReporteHotel
 
 load_dotenv()
 
@@ -114,6 +117,11 @@ def execute_query(query, params=None, many=False):
     conn.close()
     return last_id
 
+gestor_eventos.suscribir(ObservadorCorreo())
+gestor_eventos.suscribir(ObservadorHabitacion(execute_query))   
+gestor_eventos.suscribir(ObservadorLog())
+
+svc = ServicioReservas(fetch_one, fetch_all, execute_query)
 
 # =========================
 # HELPERS
@@ -735,105 +743,31 @@ def cobro():
     detalle = session["detalle_reserva"]
 
     if request.method == "POST":
-        titular = request.form.get("titular", "").strip()
-        tarjeta = request.form.get("tarjeta", "").strip()
-        vencimiento = request.form.get("vencimiento", "").strip()
-        cvv = request.form.get("cvv", "").strip()
-
-        id_cliente = get_or_create_cliente(cliente["nombre"], cliente["email"], cliente["telefono"])
-        id_usuario = get_public_operator_user_id()
+        id_cliente    = get_or_create_cliente(cliente["nombre"], cliente["email"], cliente["telefono"])
+        id_usuario    = get_public_operator_user_id()
         id_habitacion = detalle["habitacion"]["id_db"]
 
-        id_reserva = execute_query(
-            """
-            INSERT INTO RESERVAS (
-                id_cliente,
-                id_habitacion,
-                id_usuario,
-                fecha_reserva,
-                fecha_entrada,
-                fecha_salida,
-                cantidad_huespedes,
-                estado_reserva,
-                total_estimado
-            )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-            """,
-            (
-                id_cliente,
-                id_habitacion,
-                id_usuario,
-                date.today(),
-                detalle["fecha_entrada"],
-                detalle["fecha_salida"],
-                int(detalle["personas"]),
-                "confirmada",
-                float(detalle["total"]),
-            ),
-        )
-
-        subtotal = round(float(detalle["total"]) / 1.16, 2)
-        impuestos = round(float(detalle["total"]) - subtotal, 2)
-
-        id_factura = execute_query(
-            """
-            INSERT INTO FACTURAS (
-                id_reserva,
-                id_cliente,
-                fecha_factura,
-                subtotal,
-                impuestos,
-                total,
-                estado_factura
-            )
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
-            """,
-            (
-                id_reserva,
-                id_cliente,
-                date.today(),
-                subtotal,
-                impuestos,
-                float(detalle["total"]),
-                "pagada",
-            ),
-        )
-
-        execute_query(
-            """
-            INSERT INTO PAGOS (
-                id_factura,
-                fecha_pago,
-                monto,
-                referencia,
-                estado_pago
-            )
-            VALUES (%s, %s, %s, %s, %s)
-            """,
-            (
-                id_factura,
-                date.today(),
-                float(detalle["total"]),
-                f"REF-{id_reserva}",
-                "aprobado",
-            ),
-        )
-
-        execute_query(
-            "UPDATE HABITACIONES SET estado = %s WHERE id_habitacion = %s",
-            ("reservada", id_habitacion),
+        resultado = svc.crear_reserva_online(
+            id_cliente    = id_cliente,
+            id_habitacion = id_habitacion,
+            id_usuario    = id_usuario,
+            fecha_entrada = detalle["fecha_entrada"],
+            fecha_salida  = detalle["fecha_salida"],
+            personas      = int(detalle["personas"]),
+            precio_base   = detalle["habitacion"]["precio"],
+            noches        = detalle["noches"],
         )
 
         confirmacion = {
-            "folio": format_folio(id_reserva),
-            "cliente": cliente,
-            "detalle": detalle,
-            "estado_operativo": "reservada",
+            "folio":             resultado["folio"],
+            "cliente":           cliente,
+            "detalle":           detalle,
+            "estado_operativo":  "reservada",
             "pago": {
-                "titular": titular,
-                "tarjeta": tarjeta[-4:] if len(tarjeta) >= 4 else tarjeta,
-                "vencimiento": vencimiento,
-                "cvv": cvv,
+                "titular":     request.form.get("titular", "").strip(),
+                "tarjeta":     request.form.get("tarjeta", "")[-4:],
+                "vencimiento": request.form.get("vencimiento", ""),
+                "cvv":         request.form.get("cvv", ""),
             },
         }
 
@@ -928,13 +862,26 @@ def admin_recepcion():
 @admin_required
 @role_required("gerente")
 def admin_dashboard():
-    resumen = resumen_admin()
     reservas = get_reservas_db()
+
+    builder = BuilderReporteHotel()
+    director = DirectorReporte(builder)
+    reporte = director.reporte_gerente(reservas).to_dict()
+
+    resumen_template = {
+        "total_reservas":       reporte["resumen"]["total_reservas"],
+        "habitaciones_rentadas": reporte["resumen"]["habitaciones_usadas"],
+        "ganancias_totales":    reporte["resumen"]["ingresos_totales"],   
+        "total_noches":         reporte["resumen"]["total_noches"],
+        "dias_por_habitacion":  reporte["por_habitacion"],
+        }
+    
     return render_template(
         "admin_dashboard.html",
-        resumen=resumen,
+        resumen=resumen_template,
         reservas=reservas,
-    )
+        reporte=reporte,
+        )
 
 
 @app.route("/admin/clients")
@@ -986,40 +933,14 @@ def admin_bookings():
 @role_required("gerente", "recepcionista")
 def admin_check_in(folio):
     id_reserva = folio_to_id(folio)
-    admin_id = session.get("admin_id")
+    admin_id   = session.get("admin_id")
 
     if id_reserva and admin_id:
-        reserva = fetch_one(
-            "SELECT id_habitacion FROM RESERVAS WHERE id_reserva = %s",
-            (id_reserva,),
-        )
+        ya_checkin  = fetch_one("SELECT id_checkin  FROM CHECKIN  WHERE id_reserva = %s", (id_reserva,))
+        ya_checkout = fetch_one("SELECT id_checkout FROM CHECKOUT WHERE id_reserva = %s", (id_reserva,))
 
-        if reserva:
-            ya_checkin = fetch_one(
-                "SELECT id_checkin FROM CHECKIN WHERE id_reserva = %s",
-                (id_reserva,),
-            )
-            ya_checkout = fetch_one(
-                "SELECT id_checkout FROM CHECKOUT WHERE id_reserva = %s",
-                (id_reserva,),
-            )
-
-            if not ya_checkin and not ya_checkout:
-                execute_query(
-                    """
-                    INSERT INTO CHECKIN (id_reserva, id_usuario, fecha_hora_checkin, observaciones)
-                    VALUES (%s, %s, %s, %s)
-                    """,
-                    (id_reserva, admin_id, datetime.now(), "Check-in desde panel administrativo"),
-                )
-                execute_query(
-                    "UPDATE RESERVAS SET estado_reserva = %s WHERE id_reserva = %s",
-                    ("checked_in", id_reserva),
-                )
-                execute_query(
-                    "UPDATE HABITACIONES SET estado = %s WHERE id_habitacion = %s",
-                    ("ocupada", reserva["id_habitacion"]),
-                )
+        if not ya_checkin and not ya_checkout:
+            svc.hacer_checkin(id_reserva, folio, admin_id)
 
     return redirect(url_for("admin_bookings"))
 
@@ -1029,38 +950,15 @@ def admin_check_in(folio):
 @role_required("gerente", "recepcionista")
 def admin_check_out(folio):
     id_reserva = folio_to_id(folio)
-    admin_id = session.get("admin_id")
+    admin_id   = session.get("admin_id")
 
     if id_reserva and admin_id:
-        reserva = fetch_one(
-            "SELECT id_habitacion FROM RESERVAS WHERE id_reserva = %s",
-            (id_reserva,),
-        )
-
-        if reserva:
-            ya_checkout = fetch_one(
-                "SELECT id_checkout FROM CHECKOUT WHERE id_reserva = %s",
-                (id_reserva,),
-            )
-
-            if not ya_checkout:
-                execute_query(
-                    """
-                    INSERT INTO CHECKOUT (id_reserva, id_usuario, fecha_hora_checkout, observaciones, cargos_adicionales)
-                    VALUES (%s, %s, %s, %s, %s)
-                    """,
-                    (id_reserva, admin_id, datetime.now(), "Check-out desde panel administrativo", 0),
-                )
-                execute_query(
-                    "UPDATE RESERVAS SET estado_reserva = %s WHERE id_reserva = %s",
-                    ("checked_out", id_reserva),
-                )
-                execute_query(
-                    "UPDATE HABITACIONES SET estado = %s WHERE id_habitacion = %s",
-                    ("libre", reserva["id_habitacion"]),
-                )
+        ya_checkout = fetch_one("SELECT id_checkout FROM CHECKOUT WHERE id_reserva = %s", (id_reserva,))
+        if not ya_checkout:
+            svc.hacer_checkout(id_reserva, folio, admin_id)
 
     return redirect(url_for("admin_bookings"))
+
 
 @app.route("/admin/nueva-reservacion", methods=["GET", "POST"])
 @admin_required
@@ -1080,22 +978,10 @@ def admin_nueva_reservacion():
         tipo_estancia = request.form.get("tipo_estancia", "").strip()
         comentarios = request.form.get("comentarios", "").strip()
         habitacion_id = request.form.get("habitacion_id", "").strip()
-        checkin_directo = request.form.get("checkin_directo")
+        checkin_directo = request.form.get("checkin_directo") == "on"
 
         habitacion = get_habitacion_por_numero(habitacion_id)
-
-        datos = {
-            "nombre": nombre,
-            "email": email,
-            "telefono": telefono,
-            "fecha_entrada": fecha_entrada,
-            "fecha_salida": fecha_salida,
-            "personas": personas,
-            "tipo_estancia": tipo_estancia,
-            "comentarios": comentarios,
-            "habitacion_id": habitacion_id,
-            "checkin_directo": checkin_directo,
-        }
+        datos = {**request.form, "habitacion_id": habitacion_id, "checkin_directo": checkin_directo}
 
         if not nombre or not email or not telefono:
             error = "Debes completar los datos del cliente."
@@ -1106,69 +992,23 @@ def admin_nueva_reservacion():
         elif habitacion["estado"] == "ocupada":
             error = "La habitación seleccionada no está disponible."
         else:
+            from patterns.strategy import ContextoReserva, ReservaRecepcion, TarifaEstandar
             noches = calcular_noches(fecha_entrada, fecha_salida)
-            total = calcular_total(habitacion["precio"], personas, noches)
 
             id_cliente = get_or_create_cliente(nombre, email, telefono)
             id_usuario = session.get("admin_id")
 
-            id_reserva = execute_query(
-                """
-                INSERT INTO RESERVAS (
-                    id_cliente,
-                    id_habitacion,
-                    id_usuario,
-                    fecha_reserva,
-                    fecha_entrada,
-                    fecha_salida,
-                    cantidad_huespedes,
-                    estado_reserva,
-                    total_estimado
-                )
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-                """,
-                (
-                    id_cliente,
-                    habitacion["id_db"],
-                    id_usuario,
-                    date.today(),
-                    fecha_entrada,
-                    fecha_salida,
-                    int(personas),
-                    "confirmada",
-                    float(total),
-                ),
+            svc.crear_reserva_recepcion(
+                id_cliente    = id_cliente,
+                id_habitacion = habitacion["id_db"],
+                id_usuario    = id_usuario,
+                fecha_entrada = fecha_entrada,
+                fecha_salida  = fecha_salida,
+                personas      = int(personas),
+                precio_base   = habitacion["precio"],
+                noches        = noches,
+                checkin_directo = checkin_directo,
             )
-
-            execute_query(
-                "UPDATE HABITACIONES SET estado = %s WHERE id_habitacion = %s",
-                ("reservada", habitacion["id_db"]),
-            )
-
-            if checkin_directo == "on":
-                execute_query(
-                    """
-                    INSERT INTO CHECKIN (id_reserva, id_usuario, fecha_hora_checkin, observaciones)
-                    VALUES (%s, %s, %s, %s)
-                    """,
-                    (
-                        id_reserva,
-                        id_usuario,
-                        datetime.now(),
-                        "Check-in directo desde nueva reservación administrativa",
-                    ),
-                )
-
-                execute_query(
-                    "UPDATE RESERVAS SET estado_reserva = %s WHERE id_reserva = %s",
-                    ("checked_in", id_reserva),
-                )
-
-                execute_query(
-                    "UPDATE HABITACIONES SET estado = %s WHERE id_habitacion = %s",
-                    ("ocupada", habitacion["id_db"]),
-                )
-
             return redirect(url_for("admin_bookings"))
 
     return render_template(
@@ -1176,7 +1016,7 @@ def admin_nueva_reservacion():
         habitaciones=habitaciones,
         datos=datos,
         error=error,
-    )       
+    )
 
 
 if __name__ == "__main__":
