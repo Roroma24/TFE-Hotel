@@ -1,73 +1,92 @@
-{% extends 'base.html' %}
-{% block title %}Plaza Delfino | Reservas{% endblock %}
-
-{% block content %}
+{% extends 'base.html' %} {% block title %}Plaza Delfino | Reservas{% endblock
+%} {% block content %}
 <section class="booking-top">
-    <div class="container">
-        <h1>Plaza Delfino</h1>
-        <p>
-            Comience su proceso de reserva en nuestro refugio costero.
-            Para continuar, cree su cuenta y permita que preparemos una experiencia a su medida.
-        </p>
-    </div>
+  <div class="container">
+    <h1>Plaza Delfino</h1>
+    <p>
+      Comience su proceso de reserva en nuestro refugio costero. Para continuar,
+      cree su cuenta y permita que preparemos una experiencia a su medida.
+    </p>
+  </div>
 </section>
 
 <section>
-    <div class="container booking-layout">
-        <div class="booking-panel">
-            <p class="eyebrow">Primer paso</p>
-            <h2>Cree su cuenta ahora para reservar con nosotros</h2>
+  <div class="container booking-layout">
+    <div class="booking-panel">
+      <p class="eyebrow">Primer paso</p>
+      <h2>Reserva con nosotros</h2>
 
-            <p class="reservation-text">
-                Al crear su cuenta podremos guiarle por un proceso más elegante y ordenado,
-                mostrando después los datos de su estancia, duración, número de personas y
-                el resumen previo al cobro.
-            </p>
+      <p class="reservation-text">
+        Al crear su cuenta o iniciar sesión con su cuenta creada podremos
+        guiarle por un proceso más elegante y ordenado, mostrando después los
+        datos de su estancia, duración, número de personas y el resumen previo
+        al cobro.
+      </p>
 
-            <div class="reservation-cta-box">
-                <a href="{{ url_for('crear_cuenta_reserva') }}" class="btn-main full-button">
-                    Crear cuenta y continuar
-                </a>
-            </div>
-        </div>
-
-        <div class="side-stack">
-            <div class="side-panel">
-                <p class="eyebrow">Asistencia personal</p>
-
-                <div class="concierge-head">
-                    <img class="concierge-avatar" src="{{ url_for('static', filename='images/about-hotel.jpg') }}" alt="Concierge">
-                    <div>
-                        <h3>Concierge Alexandria</h3>
-                        <p>Disponible 24/7</p>
-                    </div>
-                </div>
-
-                <p>
-                    Nuestro equipo está preparado para asistirle durante cada etapa del proceso,
-                    desde la solicitud inicial hasta la confirmación de su estancia.
-                </p>
-            </div>
-
-            <div class="side-panel">
-                <div class="feature-side">
-                    <div class="item">
-                        <h4>Proceso privado</h4>
-                        <p>Una experiencia de reserva simple, elegante y simulada para esta primera versión.</p>
-                    </div>
-
-                    <div class="item">
-                        <h4>Confirmación inmediata</h4>
-                        <p>Al finalizar el cobro verá un folio de reserva generado automáticamente.</p>
-                    </div>
-
-                    <div class="item">
-                        <h4>Sin base de datos</h4>
-                        <p>Por ahora toda la información vive únicamente durante la sesión actual.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+      <div
+        class="reservation-cta-box"
+        style="display: flex; flex-direction: column; gap: 14px"
+      >
+        {% if session.get('cliente') or session.get('cliente_reserva') %}
+        <a href="{{ url_for('detalles_reserva') }}" class="btn-main full-button"
+          >Reservar ahora</a
+        >
+        {% else %}
+        <a href="{{ url_for('login') }}" class="btn-main full-button"
+          >Iniciar sesión</a
+        >
+        <a
+          href="{{ url_for('crear_cuenta_reserva', flow='reservas') }}"
+          class="btn-main full-button"
+          >Crear cuenta y continuar</a
+        >
+        {% endif %}
+      </div>
     </div>
+
+    <div class="side-stack">
+      <div class="side-panel">
+        <p class="eyebrow">Asistencia personal</p>
+
+        <div class="concierge-head">
+          <img
+            class="concierge-avatar"
+            src="{{ url_for('static', filename='images/about-hotel.jpg') }}"
+            alt="Concierge"
+          />
+          <div>
+            <h3>Concierge Alexandria</h3>
+            <p>Disponible 24/7</p>
+          </div>
+        </div>
+
+        <p>
+          Nuestro equipo está preparado para asistirle durante cada etapa del
+          proceso, desde la solicitud inicial hasta la confirmación de su
+          estancia.
+        </p>
+      </div>
+
+      <div class="side-panel">
+        <div class="feature-side">
+          <div class="item">
+            <h4>Proceso privado</h4>
+            <p>
+              Una experiencia de reserva simple, elegante y simulada para esta
+              primera versión.
+            </p>
+          </div>
+
+          <div class="item">
+            <h4>Confirmación inmediata</h4>
+            <p>
+              Al finalizar el cobro verá un folio de reserva generado
+              automáticamente.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 {% endblock %}

@@ -658,26 +658,178 @@ def reservas():
 
 @app.route("/reservas/crear-cuenta", methods=["GET", "POST"])
 def crear_cuenta_reserva():
+    error = None
+
+    empresas = fetch_all(
+        """
+        SELECT id_empresa, nombre_empresa
+        FROM EMPRESAS
+        """
+    )
+
     if request.method == "POST":
-        nombre = request.form.get("nombre", "").strip()
+        nombre_completo = request.form.get("nombre", "").strip()
         email = request.form.get("email", "").strip()
         telefono = request.form.get("telefono", "").strip()
+        password = request.form.get("password", "").strip()
 
-        session["cliente_reserva"] = {
-            "nombre": nombre,
-            "email": email,
-            "telefono": telefono,
-        }
+        documento_identidad = request.form.get("documento_identidad", "").strip()
+        direccion = request.form.get("direccion", "").strip()
+        id_empresa = request.form.get("id_empresa") or None
 
-        return redirect(url_for("detalles_reserva"))
+        if not nombre_completo or not email or not telefono or not password:
+            error = "Todos los campos obligatorios deben completarse."
 
-    return render_template("crear_cuenta_reserva.html")
+        else:
+            usuario_existente = fetch_one(
+                """
+                SELECT id_usuario
+                FROM USUARIOS
+                WHERE usuario = %s OR correo = %s
+                """,
+                (email, email),
+            )
+
+            if usuario_existente:
+                error = "Ya existe una cuenta registrada con ese correo."
+
+            else:
+                nombre, apellido = split_name(nombre_completo)
+
+                # =========================
+                # INSERTAR EN USUARIOS
+                # =========================
+                execute_query(
+                    """
+                    INSERT INTO USUARIOS
+                    (
+                        id_rol,
+                        nombre,
+                        apellido,
+                        usuario,
+                        password,
+                        correo,
+                        estado
+                    )
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                    """,
+                    (
+                        1,
+                        nombre,
+                        apellido,
+                        email,
+                        generate_password_hash(password),
+                        email,
+                        "activo",
+                    ),
+                )
+
+                # =========================
+                # INSERTAR EN CLIENTES
+                # =========================
+                execute_query(
+                    """
+                    INSERT INTO CLIENTES
+                    (
+                        id_empresa,
+                        nombre,
+                        apellido,
+                        documento_identidad,
+                        telefono,
+                        correo,
+                        direccion,
+                        tipo_cliente
+                    )
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                    """,
+                    (
+                        id_empresa,
+                        nombre,
+                        apellido,
+                        documento_identidad,
+                        telefono,
+                        email,
+                        direccion,
+                        "individual",
+                    ),
+                )
+
+                flow = request.args.get("flow") or request.form.get("flow")
+
+                if flow == "reservas":
+                    session["cliente_reserva"] = {
+                        "nombre": nombre_completo,
+                        "email": email,
+                        "telefono": telefono,
+                    }
+                    return redirect(url_for("detalles_reserva"))
+
+                return redirect(url_for("login"))
+
+    return render_template(
+        "crear_cuenta_reserva.html",
+        error=error,
+        empresas=empresas
+    )
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    error = None
+
+    if request.method == 'POST':
+        correo = request.form.get('correo', '').strip()
+        password = request.form.get('password', '').strip()
+
+        user = fetch_one(
+            """
+            SELECT u.*, r.nombre_rol
+            FROM USUARIOS u
+            INNER JOIN ROLES r
+                ON r.id_rol = u.id_rol
+            WHERE u.correo = %s
+            """,
+            (correo,),
+        )
+
+        if not user:
+            error = 'Correo no encontrado.'
+
+        elif user["nombre_rol"] in ("gerente", "recepcionista"):
+            error = 'Debe iniciar sesión desde el portal administrativo.'
+
+        elif user["estado"] != "activo":
+            error = 'La cuenta se encuentra inactiva.'
+
+        elif not password_matches(password, user["password"]):
+            error = 'Contraseña incorrecta.'
+
+        else:
+            session["cliente"] = {
+                "id": user["id_usuario"],
+                "usuario": user["usuario"],
+                "nombre": f'{user["nombre"]} {user["apellido"]}',
+                "correo": user["correo"],
+                "rol": user["nombre_rol"]
+            }
+
+            return redirect(url_for('reservas'))
+
+    return render_template('login.html', error=error)
 
 
 @app.route("/reservas/detalles", methods=["GET", "POST"])
 def detalles_reserva():
     if "cliente_reserva" not in session:
-        return redirect(url_for("crear_cuenta_reserva"))
+        if session.get("cliente"):
+            cliente = session.get("cliente")
+            session["cliente_reserva"] = {
+                "nombre": cliente.get("nombre", ""),
+                "email": cliente.get("correo") or cliente.get("email") or cliente.get("usuario", ""),
+                "telefono": cliente.get("telefono", ""),
+            }
+        else:
+            return redirect(url_for("crear_cuenta_reserva", flow='reservas'))
 
     error = None
     datos = session.get("detalle_reserva", {})
@@ -695,26 +847,37 @@ def detalles_reserva():
 
         if not fecha_entrada or not fecha_salida:
             error = "Debes seleccionar la fecha de entrada y la fecha de salida."
-        elif not habitacion:
-            error = "Debes seleccionar una habitación del croquis."
-        elif habitacion["estado"] == "ocupada":
-            error = "La habitación elegida no está disponible."
         else:
-            noches = calcular_noches(fecha_entrada, fecha_salida)
-            total = calcular_total(habitacion["precio"], personas, noches)
+            # Validar que la fecha de salida sea posterior a la de entrada
+            try:
+                fe = datetime.strptime(fecha_entrada, "%Y-%m-%d")
+                fs = datetime.strptime(fecha_salida, "%Y-%m-%d")
+                if fs <= fe:
+                    error = "La fecha de salida debe ser posterior a la fecha de entrada."
+            except Exception:
+                error = "Fechas inválidas."
 
-            session["detalle_reserva"] = {
-                "fecha_entrada": fecha_entrada,
-                "fecha_salida": fecha_salida,
-                "personas": personas,
-                "tipo_estancia": tipo_estancia or habitacion["tipo"],
-                "comentarios": comentarios,
-                "noches": noches,
-                "total": total,
-                "habitacion": habitacion,
-            }
+        if not error:
+            if not habitacion:
+                error = "Debes seleccionar una habitación del croquis."
+            elif habitacion["estado"] == "ocupada":
+                error = "La habitación elegida no está disponible."
+            else:
+                noches = calcular_noches(fecha_entrada, fecha_salida)
+                total = calcular_total(habitacion["precio"], personas, noches)
 
-            return redirect(url_for("cobro"))
+                session["detalle_reserva"] = {
+                    "fecha_entrada": fecha_entrada,
+                    "fecha_salida": fecha_salida,
+                    "personas": personas,
+                    "tipo_estancia": tipo_estancia or habitacion["tipo"],
+                    "comentarios": comentarios,
+                    "noches": noches,
+                    "total": total,
+                    "habitacion": habitacion,
+                }
+
+                return redirect(url_for("cobro"))
 
         datos = {
             "fecha_entrada": fecha_entrada,
@@ -827,6 +990,19 @@ def admin_login():
             error = "Credenciales de administrador incorrectas."
 
     return render_template("admin_login.html", error=error)
+
+
+@app.route("/logout")
+def logout():
+    session.pop("cliente", None)
+    session.pop("cliente_reserva", None)
+    session.pop("detalle_reserva", None)
+    session.pop("confirmacion_reserva", None)
+    session.pop("admin_autenticado", None)
+    session.pop("admin_usuario", None)
+    session.pop("admin_id", None)
+    session.pop("admin_rol", None)
+    return redirect(url_for("index"))
 
 
 @app.route("/admin/logout")
@@ -987,29 +1163,38 @@ def admin_nueva_reservacion():
             error = "Debes completar los datos del cliente."
         elif not fecha_entrada or not fecha_salida:
             error = "Debes seleccionar entrada y salida."
-        elif not habitacion:
-            error = "Debes seleccionar una habitación."
-        elif habitacion["estado"] == "ocupada":
-            error = "La habitación seleccionada no está disponible."
         else:
-            from patterns.strategy import ContextoReserva, ReservaRecepcion, TarifaEstandar
-            noches = calcular_noches(fecha_entrada, fecha_salida)
+            try:
+                fe = datetime.strptime(fecha_entrada, "%Y-%m-%d")
+                fs = datetime.strptime(fecha_salida, "%Y-%m-%d")
+                if fs <= fe:
+                    error = "La fecha de salida debe ser posterior a la fecha de entrada."
+            except Exception:
+                error = "Fechas inválidas."
+        if not error:
+            if not habitacion:
+                error = "Debes seleccionar una habitación."
+            elif habitacion["estado"] == "ocupada":
+                error = "La habitación seleccionada no está disponible."
+            else:
+                from patterns.strategy import ContextoReserva, ReservaRecepcion, TarifaEstandar
+                noches = calcular_noches(fecha_entrada, fecha_salida)
 
-            id_cliente = get_or_create_cliente(nombre, email, telefono)
-            id_usuario = session.get("admin_id")
+                id_cliente = get_or_create_cliente(nombre, email, telefono)
+                id_usuario = session.get("admin_id")
 
-            svc.crear_reserva_recepcion(
-                id_cliente    = id_cliente,
-                id_habitacion = habitacion["id_db"],
-                id_usuario    = id_usuario,
-                fecha_entrada = fecha_entrada,
-                fecha_salida  = fecha_salida,
-                personas      = int(personas),
-                precio_base   = habitacion["precio"],
-                noches        = noches,
-                checkin_directo = checkin_directo,
-            )
-            return redirect(url_for("admin_bookings"))
+                svc.crear_reserva_recepcion(
+                    id_cliente    = id_cliente,
+                    id_habitacion = habitacion["id_db"],
+                    id_usuario    = id_usuario,
+                    fecha_entrada = fecha_entrada,
+                    fecha_salida  = fecha_salida,
+                    personas      = int(personas),
+                    precio_base   = habitacion["precio"],
+                    noches        = noches,
+                    checkin_directo = checkin_directo,
+                )
+                return redirect(url_for("admin_bookings"))
 
     return render_template(
         "admin_nueva_reservacion.html",

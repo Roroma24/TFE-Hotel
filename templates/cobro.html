@@ -1,98 +1,111 @@
-{% extends 'base.html' %}
-{% block title %}Plaza Delfino | Cobro{% endblock %}
-
+{% extends 'base.html' %} {% block title %}Plaza Delfino | Cobro{% endblock %}
 {% block content %}
 <section class="booking-top">
-    <div class="container">
-        <h1>Cobro</h1>
-        <p>
-            Revise el resumen de su reserva y capture los datos de pago para finalizar el proceso.
-        </p>
-    </div>
+  <div class="container">
+    <h1>Cobro</h1>
+    <p>
+      Revise el resumen de su reserva y capture los datos de pago para finalizar
+      el proceso.
+    </p>
+  </div>
 </section>
 
 <section>
-    <div class="container booking-layout">
-        <div class="booking-panel">
-            <p class="eyebrow">Cuarto paso</p>
-            <h2>Finalice su reserva</h2>
+  <div class="container booking-layout">
+    <div class="booking-panel">
+      <p class="eyebrow">Cuarto paso</p>
+      <h2>Finalice su reserva</h2>
 
-            <form method="post">
-                <div class="form-grid">
-                    <div class="form-group" style="grid-column: 1 / -1;">
-                        <label>Nombre del titular</label>
-                        <input type="text" name="titular" required>
-                    </div>
+      <form method="post">
+        <div class="form-grid">
+          <div class="form-group" style="grid-column: 1 / -1">
+            <label>Nombre del titular</label>
+            <input type="text" name="titular" required />
+          </div>
 
-                    <div class="form-group" style="grid-column: 1 / -1;">
-                        <label>Número de tarjeta</label>
-                        <input type="text" name="tarjeta" placeholder="1234 5678 9012 3456" required>
-                    </div>
+          <div class="form-group" style="grid-column: 1 / -1">
+            <label>Número de tarjeta</label>
+            <input
+              type="text"
+              name="tarjeta"
+              placeholder="1234 5678 9012 3456"
+              required
+            />
+          </div>
 
-                    <div class="form-group">
-                        <label>Vencimiento</label>
-                        <input type="text" name="vencimiento" placeholder="MM/AA" required>
-                    </div>
+          <div class="form-group">
+            <label>Vencimiento</label>
+            <input
+              type="text"
+              name="vencimiento"
+              placeholder="MM/AA"
+              required
+            />
+          </div>
 
-                    <div class="form-group">
-                        <label>CVV</label>
-                        <input type="text" name="cvv" placeholder="123" required>
-                    </div>
-                </div>
-
-                <button type="submit" class="btn-main full-button">
-                    Pagar y confirmar
-                </button>
-            </form>
+          <div class="form-group">
+            <label>CVV</label>
+            <input type="text" name="cvv" placeholder="123" required />
+          </div>
         </div>
 
-        <div class="side-stack">
-            <div class="side-panel">
-                <p class="eyebrow">Resumen</p>
-
-                <div class="feature-side">
-                    <div class="item">
-                        <h4>Cliente</h4>
-                        <p>{{ cliente.nombre }}</p>
-                    </div>
-
-                    <div class="item">
-                        <h4>Habitación</h4>
-                        <p>{{ detalle.habitacion.id }} - {{ detalle.habitacion.nombre }}</p>
-                    </div>
-
-                    <div class="item">
-                        <h4>Tipo</h4>
-                        <p>{{ detalle.habitacion.tipo }}</p>
-                    </div>
-
-                    <div class="item">
-                        <h4>Entrada</h4>
-                        <p>{{ detalle.fecha_entrada }}</p>
-                    </div>
-
-                    <div class="item">
-                        <h4>Salida</h4>
-                        <p>{{ detalle.fecha_salida }}</p>
-                    </div>
-
-                    <div class="item">
-                        <h4>Noches</h4>
-                        <p>{{ detalle.noches }}</p>
-                    </div>
-
-                    <div class="item">
-                        <h4>Personas</h4>
-                        <p>{{ detalle.personas }}</p>
-                    </div>
-
-                    <div class="item">
-                        <h4>Total estimado</h4>
-                        <p>${{ detalle.total }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <button
+          type="submit"
+          class="btn-main full-button"
+          style="margin-top: 24px"
+        >
+          Pagar y confirmar
+        </button>
+      </form>
     </div>
+
+    <div class="side-stack">
+      <div class="side-panel">
+        <p class="eyebrow">Resumen</p>
+
+        <div class="feature-side">
+          <div class="item">
+            <h4>Cliente</h4>
+            <p>{{ cliente.nombre }}</p>
+          </div>
+
+          <div class="item">
+            <h4>Habitación</h4>
+            <p>{{ detalle.habitacion.id }} - {{ detalle.habitacion.nombre }}</p>
+          </div>
+
+          <div class="item">
+            <h4>Tipo</h4>
+            <p>{{ detalle.habitacion.tipo }}</p>
+          </div>
+
+          <div class="item">
+            <h4>Entrada</h4>
+            <p>{{ detalle.fecha_entrada }}</p>
+          </div>
+
+          <div class="item">
+            <h4>Salida</h4>
+            <p>{{ detalle.fecha_salida }}</p>
+          </div>
+
+          <div class="item">
+            <h4>Noches</h4>
+            <p>{{ detalle.noches }}</p>
+          </div>
+
+          <div class="item">
+            <h4>Personas</h4>
+            <p>{{ detalle.personas }}</p>
+          </div>
+
+          <div class="item">
+            <h4>Total estimado</h4>
+            <p>${{ detalle.total }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 {% endblock %}

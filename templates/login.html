@@ -1,27 +1,30 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} {% block title %}Plaza Delfino | Iniciar sesión{%
+endblock %} {% block content %}
+<section class="admin-login-wrap">
+  <div class="admin-login-card">
+    <p class="eyebrow">Acceso</p>
+    <h1>Iniciar sesión</h1>
+    <p class="admin-login-text">
+      Accede para gestionar o continuar con tu reserva.
+    </p>
 
-{% block title %}Plaza Delfino | Iniciar sesión{% endblock %}
+    {% if error %}
+    <div class="form-error-box">{{ error }}</div>
+    {% endif %}
 
-{% block content %}
-<section class="login-shell">
-    <div class="login-card">
-        <p class="eyebrow">Acceso privado</p>
-        <h1>Iniciar sesión</h1>
-        <p>Accede para consultar tus reservas y mantener tu información de estancia en un solo lugar.</p>
+    <form method="post" class="admin-form">
+      <div class="form-group">
+        <label>Correo electrónico</label>
+        <input type="email" name="correo" required />
+      </div>
 
-        <form method="post">
-            <div class="form-group">
-                <label for="nombre">Nombre completo</label>
-                <input class="input" type="text" id="nombre" name="nombre" placeholder="Tu nombre" required>
-            </div>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input type="password" name="password" required />
+      </div>
 
-            <div class="form-group">
-                <label for="email">Correo electrónico</label>
-                <input class="input" type="email" id="email" name="email" placeholder="correo@ejemplo.com" required>
-            </div>
-
-            <button type="submit" class="btn btn-primary btn-block">Entrar</button>
-        </form>
-    </div>
+      <button type="submit" class="btn-main full-button">Iniciar sesión</button>
+    </form>
+  </div>
 </section>
-{% endblock %}
+{% endblock %} ```
