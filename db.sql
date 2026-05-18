@@ -141,7 +141,30 @@ CREATE TABLE PAGOS (
 );
 
 -- Insertar roles iniciales
-INSERT INTO ROLES (id_rol, nombre_rol) VALUES
-(1, 'cliente'),
-(2, 'recepcionista'),
-(3, 'gerente');
+INSERT INTO ROLES (id_rol, nombre_rol, descripcion) VALUES
+(1, 'cliente', 'Usuarios que buscan reservar en el hotel'),
+(2, 'recepcionista', 'Personal que atiende en instalaciones físicas'),
+(3, 'gerente', 'Personal que gestiona el hotel');
+
+-- Insertar empresas
+INSERT INTO EMPRESAS
+(nombre_empresa, direccion, telefono, correo)
+VALUES
+(
+    'Tech Solutions MX',
+    'Av. Reforma 1200, Ciudad de México',
+    '5551234567',
+    'contacto@techsolutions.com'
+),
+(
+    'Grupo Empresarial Rivera',
+    'Blvd. Costero 45, Cancún',
+    '9984567890',
+    'reservas@rivera.com'
+),
+(
+    'Corporativo Delfino',
+    'Paseo del Mar 88, Los Cabos',
+    '6247891234',
+    'admin@delfino.com'
+);
