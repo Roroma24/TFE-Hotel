@@ -395,27 +395,31 @@ def get_habitacion_por_numero(numero):
     }
 
 
-def get_or_create_cliente(nombre_completo, email, telefono):
+def get_or_create_cliente(nombre_completo, email, telefono, documento_identidad=None, direccion=None, id_empresa=None):
     cliente = fetch_one("SELECT * FROM CLIENTES WHERE correo = %s", (email,))
     nombre, apellido = split_name(nombre_completo)
+
+    # Convertir id_empresa a None si está vacío
+    if id_empresa == "":
+        id_empresa = None
 
     if cliente:
         execute_query(
             """
             UPDATE CLIENTES
-            SET nombre = %s, apellido = %s, telefono = %s
+            SET nombre = %s, apellido = %s, telefono = %s, documento_identidad = %s, direccion = %s, id_empresa = %s
             WHERE id_cliente = %s
             """,
-            (nombre, apellido, telefono, cliente["id_cliente"]),
+            (nombre, apellido, telefono, documento_identidad, direccion, id_empresa, cliente["id_cliente"]),
         )
         return cliente["id_cliente"]
 
     return execute_query(
         """
         INSERT INTO CLIENTES (id_empresa, nombre, apellido, documento_identidad, telefono, correo, direccion, tipo_cliente)
-        VALUES (NULL, %s, %s, NULL, %s, %s, NULL, %s)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """,
-        (nombre, apellido, telefono, email, "individual"),
+        (id_empresa, nombre, apellido, documento_identidad, telefono, email, direccion, "individual"),
     )
 
 
@@ -848,7 +852,6 @@ def detalles_reserva():
         if not fecha_entrada or not fecha_salida:
             error = "Debes seleccionar la fecha de entrada y la fecha de salida."
         else:
-            # Validar que la fecha de salida sea posterior a la de entrada
             try:
                 fe = datetime.strptime(fecha_entrada, "%Y-%m-%d")
                 fs = datetime.strptime(fecha_salida, "%Y-%m-%d")
@@ -904,37 +907,67 @@ def cobro():
 
     cliente = session["cliente_reserva"]
     detalle = session["detalle_reserva"]
+    desde_admin = session.get("reserva_desde_admin", False)
 
     if request.method == "POST":
-        id_cliente    = get_or_create_cliente(cliente["nombre"], cliente["email"], cliente["telefono"])
-        id_usuario    = get_public_operator_user_id()
+        id_cliente = get_or_create_cliente(
+            cliente["nombre"],
+            cliente["email"],
+            cliente["telefono"],
+            documento_identidad=cliente.get("documento_identidad"),
+            direccion=cliente.get("direccion"),
+            id_empresa=cliente.get("id_empresa"),
+        )
+        
+        if desde_admin:
+            id_usuario = session.get("admin_id")
+            checkin_directo = detalle.get("checkin_directo", False)
+        else:
+            id_usuario = get_public_operator_user_id()
+            checkin_directo = False
+
         id_habitacion = detalle["habitacion"]["id_db"]
 
-        resultado = svc.crear_reserva_online(
-            id_cliente    = id_cliente,
-            id_habitacion = id_habitacion,
-            id_usuario    = id_usuario,
-            fecha_entrada = detalle["fecha_entrada"],
-            fecha_salida  = detalle["fecha_salida"],
-            personas      = int(detalle["personas"]),
-            precio_base   = detalle["habitacion"]["precio"],
-            noches        = detalle["noches"],
-        )
+        if desde_admin:
+            from patterns.strategy import ContextoReserva, ReservaRecepcion, TarifaEstandar
+            resultado = svc.crear_reserva_recepcion(
+                id_cliente=id_cliente,
+                id_habitacion=id_habitacion,
+                id_usuario=id_usuario,
+                fecha_entrada=detalle["fecha_entrada"],
+                fecha_salida=detalle["fecha_salida"],
+                personas=int(detalle["personas"]),
+                precio_base=detalle["habitacion"]["precio"],
+                noches=detalle["noches"],
+                checkin_directo=checkin_directo,
+            )
+        else:
+            resultado = svc.crear_reserva_online(
+                id_cliente=id_cliente,
+                id_habitacion=id_habitacion,
+                id_usuario=id_usuario,
+                fecha_entrada=detalle["fecha_entrada"],
+                fecha_salida=detalle["fecha_salida"],
+                personas=int(detalle["personas"]),
+                precio_base=detalle["habitacion"]["precio"],
+                noches=detalle["noches"],
+            )
 
         confirmacion = {
-            "folio":             resultado["folio"],
-            "cliente":           cliente,
-            "detalle":           detalle,
-            "estado_operativo":  "reservada",
+            "folio": resultado["folio"],
+            "cliente": cliente,
+            "detalle": detalle,
+            "estado_operativo": "reservada",
             "pago": {
-                "titular":     request.form.get("titular", "").strip(),
-                "tarjeta":     request.form.get("tarjeta", "")[-4:],
+                "titular": request.form.get("titular", "").strip(),
+                "tarjeta": request.form.get("tarjeta", "")[-4:],
                 "vencimiento": request.form.get("vencimiento", ""),
-                "cvv":         request.form.get("cvv", ""),
+                "cvv": request.form.get("cvv", ""),
             },
         }
 
         session["confirmacion_reserva"] = confirmacion
+        session["desde_admin_confirmacion"] = desde_admin
         return redirect(url_for("confirmacion_reserva"))
 
     return render_template("cobro.html", cliente=cliente, detalle=detalle)
@@ -944,6 +977,16 @@ def cobro():
 def confirmacion_reserva():
     if "confirmacion_reserva" not in session:
         return redirect(url_for("reservas"))
+
+    desde_admin = session.get("desde_admin_confirmacion", False)
+
+    if desde_admin:
+        session.pop("cliente_reserva", None)
+        session.pop("detalle_reserva", None)
+        session.pop("confirmacion_reserva", None)
+        session.pop("reserva_desde_admin", None)
+        session.pop("desde_admin_confirmacion", None)
+        return redirect(url_for("admin_bookings"))
 
     return render_template(
         "confirmacion_reserva.html",
@@ -1141,6 +1184,12 @@ def admin_check_out(folio):
 @role_required("gerente", "recepcionista")
 def admin_nueva_reservacion():
     habitaciones = get_habitaciones_croquis_db()
+    empresas = fetch_all(
+        """
+        SELECT id_empresa, nombre_empresa
+        FROM EMPRESAS
+        """
+    )
     error = None
     datos = {}
 
@@ -1148,6 +1197,9 @@ def admin_nueva_reservacion():
         nombre = request.form.get("nombre", "").strip()
         email = request.form.get("email", "").strip()
         telefono = request.form.get("telefono", "").strip()
+        documento_identidad = request.form.get("documento_identidad", "").strip() or None
+        direccion = request.form.get("direccion", "").strip() or None
+        id_empresa = request.form.get("id_empresa", "").strip() or None
         fecha_entrada = request.form.get("fecha_entrada", "").strip()
         fecha_salida = request.form.get("fecha_salida", "").strip()
         personas = request.form.get("personas", "2").strip()
@@ -1177,28 +1229,120 @@ def admin_nueva_reservacion():
             elif habitacion["estado"] == "ocupada":
                 error = "La habitación seleccionada no está disponible."
             else:
-                from patterns.strategy import ContextoReserva, ReservaRecepcion, TarifaEstandar
                 noches = calcular_noches(fecha_entrada, fecha_salida)
+                total = calcular_total(habitacion["precio"], personas, noches)
 
-                id_cliente = get_or_create_cliente(nombre, email, telefono)
-                id_usuario = session.get("admin_id")
-
-                svc.crear_reserva_recepcion(
-                    id_cliente    = id_cliente,
-                    id_habitacion = habitacion["id_db"],
-                    id_usuario    = id_usuario,
-                    fecha_entrada = fecha_entrada,
-                    fecha_salida  = fecha_salida,
-                    personas      = int(personas),
-                    precio_base   = habitacion["precio"],
-                    noches        = noches,
-                    checkin_directo = checkin_directo,
+                # =========================
+                # CREAR CLIENTE
+                # =========================
+                id_cliente = get_or_create_cliente(
+                    nombre,
+                    email,
+                    telefono,
+                    documento_identidad=documento_identidad,
+                    direccion=direccion,
+                    id_empresa=id_empresa,
                 )
+                
+                id_usuario = session.get("admin_id")
+                id_habitacion = habitacion["id_db"]
+
+                # =========================
+                # CREAR RESERVA
+                # =========================
+                resultado = svc.crear_reserva_recepcion(
+                    id_cliente=id_cliente,
+                    id_habitacion=id_habitacion,
+                    id_usuario=id_usuario,
+                    fecha_entrada=fecha_entrada,
+                    fecha_salida=fecha_salida,
+                    personas=int(personas),
+                    precio_base=habitacion["precio"],
+                    noches=noches,
+                    checkin_directo=checkin_directo,
+                )
+
+                # =========================
+                # DATOS DE PAGO
+                # =========================
+                titular = request.form.get("titular", "").strip()
+                tarjeta = request.form.get("tarjeta", "").strip()
+                metodo_pago = request.form.get("metodo_pago", "Tarjeta")
+
+                # =========================
+                # FACTURA
+                # =========================
+                subtotal = total
+                impuestos = round(total * 0.16, 2)
+                total_final = subtotal + impuestos
+                execute_query(
+                    """
+                    INSERT INTO FACTURAS
+                    (
+                        id_reserva,
+                        id_cliente,
+                        fecha_factura,
+                        subtotal,
+                        impuestos,
+                        total,
+                        estado_factura
+                    )
+                    VALUES (%s, %s, CURDATE(), %s, %s, %s, %s)
+                    """,
+                    (
+                        resultado["id_reserva"],
+                        id_cliente,
+                        subtotal,
+                        impuestos,
+                        total_final,
+                        "pagada",
+                    ),
+                )
+
+                # =========================
+                # OBTENER ID FACTURA
+                # =========================
+                factura = fetch_one(
+                    """
+                    SELECT id_factura
+                    FROM FACTURAS
+                    WHERE id_reserva = %s
+                    ORDER BY id_factura DESC
+                    LIMIT 1
+                    """,
+                    (resultado["id_reserva"],),
+                )
+
+                # =========================
+                # PAGO
+                # =========================
+                execute_query(
+                    """
+                    INSERT INTO PAGOS
+                    (
+                        id_factura,
+                        fecha_pago,
+                        monto,
+                        referencia,
+                        estado_pago
+                    )
+                    VALUES (%s, CURDATE(), %s, %s, %s)
+                    """,
+                    (
+                        factura["id_factura"],
+                        total_final,
+                        tarjeta[-4:] if tarjeta else "PAGO ADMIN",
+                        "aprobado",
+                    ),
+                )
+                
                 return redirect(url_for("admin_bookings"))
+
 
     return render_template(
         "admin_nueva_reservacion.html",
         habitaciones=habitaciones,
+        empresas=empresas,
         datos=datos,
         error=error,
     )
