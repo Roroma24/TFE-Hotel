@@ -1,776 +1,765 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plaza Delfino | Admin Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Plaza Delfino | Panel de Administración</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
 
-        body {
-            font-family: "Inter", sans-serif;
-            background: #f5f7fb;
-            color: #1f2937;
-        }
+      body {
+        font-family: "Inter", sans-serif;
+        background: #f5f7fb;
+        color: #1f2937;
+      }
 
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
 
-        .admin-shell {
-            display: grid;
-            grid-template-columns: 250px 1fr;
-            min-height: 100vh;
-        }
+      .admin-shell {
+        display: grid;
+        grid-template-columns: 250px 1fr;
+        min-height: 100vh;
+      }
 
-        .admin-sidebar {
-            background: #f1f4f9;
-            border-right: 1px solid #e5eaf2;
-            padding: 26px 18px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
+      .admin-sidebar {
+        background: #f1f4f9;
+        border-right: 1px solid #e5eaf2;
+        padding: 26px 18px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
 
-        .brand-block h1 {
-            font-size: 28px;
-            font-weight: 800;
-            color: #2563eb;
-            line-height: 1;
-            margin-bottom: 6px;
-        }
+      .brand-block h1 {
+        font-size: 28px;
+        font-weight: 800;
+        color: #2563eb;
+        line-height: 1;
+        margin-bottom: 6px;
+      }
 
-        .brand-block p {
-            font-size: 11px;
-            color: #8b98ab;
-            letter-spacing: 1.6px;
-            text-transform: uppercase;
-        }
+      .brand-block p {
+        font-size: 11px;
+        color: #8b98ab;
+        letter-spacing: 1.6px;
+        text-transform: uppercase;
+      }
 
-        .side-nav {
-            margin-top: 34px;
-            display: grid;
-            gap: 8px;
-        }
+      .side-nav {
+        margin-top: 34px;
+        display: grid;
+        gap: 8px;
+      }
 
-        .side-nav a {
-            padding: 13px 14px;
-            border-radius: 12px;
-            color: #6b7280;
-            font-size: 14px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: 0.2s ease;
-        }
+      .side-nav a {
+        padding: 13px 14px;
+        border-radius: 12px;
+        color: #6b7280;
+        font-size: 14px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transition: 0.2s ease;
+      }
 
-        .side-nav a:hover,
-        .side-nav a.active {
-            background: #ffffff;
-            color: #2563eb;
-            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
-        }
+      .side-nav a:hover,
+      .side-nav a.active {
+        background: #ffffff;
+        color: #2563eb;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+      }
 
-        .side-bottom {
-            margin-top: 30px;
-        }
+      .side-bottom {
+        margin-top: 30px;
+      }
 
-        .new-booking-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            padding: 14px 16px;
-            background: #2563eb;
-            color: #fff;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 600;
-            box-shadow: 0 10px 24px rgba(37, 99, 235, 0.25);
-        }
+      .new-booking-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 14px 16px;
+        background: #2563eb;
+        color: #fff;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        box-shadow: 0 10px 24px rgba(37, 99, 235, 0.25);
+      }
 
-        .admin-main {
-            padding: 22px 26px 24px;
-        }
+      .admin-main {
+        padding: 22px 26px 24px;
+      }
 
-        .topbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 18px;
-            margin-bottom: 24px;
-        }
+      .topbar {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        margin-bottom: 24px;
+      }
 
-        .search-box {
-            flex: 1;
-            max-width: 560px;
-            background: #ffffff;
-            border: 1px solid #e7ebf2;
-            border-radius: 14px;
-            padding: 13px 16px;
-            color: #9aa4b2;
-            font-size: 14px;
-        }
+      .profile-chip {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #ffffff;
+        border: 1px solid #e7ebf2;
+        border-radius: 14px;
+        padding: 8px 10px 8px 14px;
+      }
 
-        .topbar-right {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
+      .profile-chip small {
+        display: block;
+        font-size: 10px;
+        text-transform: uppercase;
+        color: #9aa4b2;
+        letter-spacing: 1.3px;
+      }
 
-        .icon-circle {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            background: #ffffff;
-            border: 1px solid #e7ebf2;
-            display: grid;
-            place-items: center;
-            color: #6b7280;
-            font-size: 14px;
-        }
+      .profile-chip strong {
+        font-size: 13px;
+        color: #374151;
+      }
 
-        .profile-chip {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: #ffffff;
-            border: 1px solid #e7ebf2;
-            border-radius: 14px;
-            padding: 8px 10px 8px 14px;
-        }
+      .profile-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+        display: grid;
+        place-items: center;
+        color: #1d4ed8;
+        font-weight: 700;
+      }
 
-        .profile-chip small {
-            display: block;
-            font-size: 10px;
-            text-transform: uppercase;
-            color: #9aa4b2;
-            letter-spacing: 1.3px;
-        }
+      .hero-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 20px;
+        margin-bottom: 24px;
+      }
 
-        .profile-chip strong {
-            font-size: 13px;
-            color: #374151;
-        }
+      .hero-row h2 {
+        font-size: 40px;
+        font-weight: 800;
+        color: #18212f;
+        margin-bottom: 4px;
+      }
 
-        .profile-avatar {
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
-            display: grid;
-            place-items: center;
-            color: #1d4ed8;
-            font-weight: 700;
-        }
+      .hero-row p {
+        color: #8b98ab;
+        font-size: 14px;
+      }
 
-        .hero-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 20px;
-            margin-bottom: 24px;
-        }
+      .hero-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
 
-        .hero-row h2 {
-            font-size: 40px;
-            font-weight: 800;
-            color: #18212f;
-            margin-bottom: 4px;
-        }
+      .btn-light,
+      .btn-primary {
+        border-radius: 12px;
+        padding: 11px 16px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+      }
 
-        .hero-row p {
-            color: #8b98ab;
-            font-size: 14px;
-        }
+      .btn-light {
+        background: #ffffff;
+        border: 1px solid #e7ebf2;
+        color: #6b7280;
+      }
 
-        .hero-actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
+      .btn-primary {
+        background: #2563eb;
+        color: #fff;
+        box-shadow: 0 10px 22px rgba(37, 99, 235, 0.18);
+      }
 
-        .btn-light,
-        .btn-primary {
-            border-radius: 12px;
-            padding: 11px 16px;
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-        }
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 18px;
+      }
 
-        .btn-light {
-            background: #ffffff;
-            border: 1px solid #e7ebf2;
-            color: #6b7280;
-        }
+      .stat-card {
+        background: #ffffff;
+        border: 1px solid #e8edf4;
+        border-radius: 18px;
+        padding: 18px 18px 16px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+      }
 
-        .btn-primary {
-            background: #2563eb;
-            color: #fff;
-            box-shadow: 0 10px 22px rgba(37, 99, 235, 0.18);
-        }
+      .stat-card span {
+        display: block;
+        font-size: 11px;
+        color: #9aa4b2;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 10px;
+      }
 
+      .stat-card strong {
+        display: block;
+        font-size: 34px;
+        color: #1f2937;
+        line-height: 1;
+        font-weight: 800;
+        margin-bottom: 8px;
+      }
+
+      .stat-card small {
+        font-size: 12px;
+        color: #16a34a;
+        font-weight: 600;
+      }
+
+      .stat-card small.negative {
+        color: #dc2626;
+      }
+
+      .content-grid {
+        display: grid;
+        grid-template-columns: 1.5fr 0.9fr;
+        gap: 16px;
+        margin-bottom: 18px;
+      }
+
+      .panel {
+        background: #ffffff;
+        border: 1px solid #e8edf4;
+        border-radius: 18px;
+        padding: 20px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+      }
+
+      .panel-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+
+      .panel-head h3 {
+        font-size: 24px;
+        font-weight: 800;
+        color: #1f2937;
+        margin-bottom: 4px;
+      }
+
+      .panel-head p {
+        font-size: 11px;
+        color: #9aa4b2;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 700;
+      }
+
+      .panel-link {
+        font-size: 11px;
+        color: #2563eb;
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 0.8px;
+      }
+
+      .chart-placeholder {
+        height: 260px;
+        border-radius: 16px;
+        background:
+          linear-gradient(to top, rgba(37, 99, 235, 0.07) 1px, transparent 1px),
+          linear-gradient(
+            to right,
+            rgba(148, 163, 184, 0.1) 1px,
+            transparent 1px
+          ),
+          #fbfcfe;
+        background-size:
+          100% 52px,
+          calc(100% / 7) 100%;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .chart-line-1,
+      .chart-line-2 {
+        position: absolute;
+        left: 18px;
+        right: 18px;
+        height: 140px;
+        bottom: 42px;
+      }
+
+      .chart-line-1 svg,
+      .chart-line-2 svg {
+        width: 100%;
+        height: 100%;
+      }
+
+      .chart-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 10px;
+        color: #9aa4b2;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      .donut-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 14px 0 20px;
+      }
+
+      .donut {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        position: relative;
+        display: grid;
+        place-items: center;
+      }
+
+      .donut::after {
+        content: "";
+        width: 96px;
+        height: 96px;
+        border-radius: 50%;
+        background: #ffffff;
+        position: absolute;
+      }
+
+      .donut span {
+        position: relative;
+        z-index: 2;
+        font-size: 28px;
+        font-weight: 800;
+        color: #374151;
+      }
+
+      .channel-list {
+        display: grid;
+        gap: 12px;
+        margin-top: 8px;
+      }
+
+      .channel-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        font-size: 13px;
+        color: #6b7280;
+      }
+
+      .channel-row strong {
+        color: #1f2937;
+        font-size: 13px;
+      }
+
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 8px;
+      }
+
+      .table-panel {
+        margin-top: 4px;
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 920px;
+      }
+
+      th,
+      td {
+        padding: 14px 10px;
+        text-align: left;
+        border-bottom: 1px solid #eef2f7;
+        font-size: 13px;
+      }
+
+      th {
+        color: #94a3b8;
+        text-transform: uppercase;
+        font-size: 11px;
+        letter-spacing: 0.9px;
+        font-weight: 700;
+      }
+
+      td {
+        color: #374151;
+      }
+
+      .guest-cell strong {
+        display: block;
+        font-size: 13px;
+        color: #1f2937;
+        margin-bottom: 2px;
+      }
+
+      .guest-cell small {
+        color: #9aa4b2;
+        font-size: 11px;
+      }
+
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 7px 10px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      .status-pill.confirmed {
+        background: #e8f7ef;
+        color: #16a34a;
+      }
+
+      .status-pill.pending {
+        background: #eef2ff;
+        color: #4f46e5;
+      }
+
+      .status-pill.finished {
+        background: #fff7e6;
+        color: #d97706;
+      }
+
+      .empty-state {
+        padding: 28px 10px 6px;
+        color: #94a3b8;
+        font-size: 14px;
+      }
+
+      .footer-mini {
+        margin-top: 18px;
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        color: #a0a9b7;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+      }
+
+      @media (max-width: 1200px) {
         .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            margin-bottom: 18px;
+          grid-template-columns: repeat(2, 1fr);
         }
-
-        .stat-card {
-            background: #ffffff;
-            border: 1px solid #e8edf4;
-            border-radius: 18px;
-            padding: 18px 18px 16px;
-            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
-        }
-
-        .stat-card span {
-            display: block;
-            font-size: 11px;
-            color: #9aa4b2;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
-        }
-
-        .stat-card strong {
-            display: block;
-            font-size: 34px;
-            color: #1f2937;
-            line-height: 1;
-            font-weight: 800;
-            margin-bottom: 8px;
-        }
-
-        .stat-card small {
-            font-size: 12px;
-            color: #16a34a;
-            font-weight: 600;
-        }
-
-        .stat-card small.negative {
-            color: #dc2626;
-        }
-
         .content-grid {
-            display: grid;
-            grid-template-columns: 1.5fr 0.9fr;
-            gap: 16px;
-            margin-bottom: 18px;
+          grid-template-columns: 1fr;
         }
+      }
 
-        .panel {
-            background: #ffffff;
-            border: 1px solid #e8edf4;
-            border-radius: 18px;
-            padding: 20px;
-            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+      @media (max-width: 980px) {
+        .admin-shell {
+          grid-template-columns: 1fr;
         }
-
-        .panel-head {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 12px;
-            margin-bottom: 18px;
+        .admin-sidebar {
+          border-right: none;
+          border-bottom: 1px solid #e5eaf2;
         }
+      }
 
-        .panel-head h3 {
-            font-size: 24px;
-            font-weight: 800;
-            color: #1f2937;
-            margin-bottom: 4px;
+      @media (max-width: 768px) {
+        .hero-row,
+        .topbar {
+          flex-direction: column;
+          align-items: stretch;
         }
-
-        .panel-head p {
-            font-size: 11px;
-            color: #9aa4b2;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 700;
+        .stats-grid {
+          grid-template-columns: 1fr;
         }
-
-        .panel-link {
-            font-size: 11px;
-            color: #2563eb;
-            text-transform: uppercase;
-            font-weight: 700;
-            letter-spacing: 0.8px;
+        .hero-row h2 {
+          font-size: 30px;
         }
-
-        .chart-placeholder {
-            height: 260px;
-            border-radius: 16px;
-            background:
-                linear-gradient(to top, rgba(37,99,235,0.07) 1px, transparent 1px),
-                linear-gradient(to right, rgba(148,163,184,0.10) 1px, transparent 1px),
-                #fbfcfe;
-            background-size: 100% 52px, calc(100% / 7) 100%;
-            position: relative;
-            overflow: hidden;
+        .admin-main {
+          padding: 18px;
         }
-
-        .chart-line-1,
-        .chart-line-2 {
-            position: absolute;
-            left: 18px;
-            right: 18px;
-            height: 140px;
-            bottom: 42px;
-        }
-
-        .chart-line-1 svg,
-        .chart-line-2 svg {
-            width: 100%;
-            height: 100%;
-        }
-
-        .chart-labels {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 10px;
-            color: #9aa4b2;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .donut-wrap {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 14px 0 20px;
-        }
-
-        .donut {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            position: relative;
-            display: grid;
-            place-items: center;
-        }
-
-        .donut::after {
-            content: "";
-            width: 96px;
-            height: 96px;
-            border-radius: 50%;
-            background: #ffffff;
-            position: absolute;
-        }
-
-        .donut span {
-            position: relative;
-            z-index: 2;
-            font-size: 28px;
-            font-weight: 800;
-            color: #374151;
-        }
-
-        .channel-list {
-            display: grid;
-            gap: 12px;
-            margin-top: 8px;
-        }
-
-        .channel-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 10px;
-            font-size: 13px;
-            color: #6b7280;
-        }
-
-        .channel-row strong {
-            color: #1f2937;
-            font-size: 13px;
-        }
-
-        .dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 8px;
-        }
-
-        .table-panel {
-            margin-top: 4px;
-        }
-
-        .table-wrap {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 920px;
-        }
-
-        th, td {
-            padding: 14px 10px;
-            text-align: left;
-            border-bottom: 1px solid #eef2f7;
-            font-size: 13px;
-        }
-
-        th {
-            color: #94a3b8;
-            text-transform: uppercase;
-            font-size: 11px;
-            letter-spacing: 0.9px;
-            font-weight: 700;
-        }
-
-        td {
-            color: #374151;
-        }
-
-        .guest-cell strong {
-            display: block;
-            font-size: 13px;
-            color: #1f2937;
-            margin-bottom: 2px;
-        }
-
-        .guest-cell small {
-            color: #9aa4b2;
-            font-size: 11px;
-        }
-
-        .status-pill {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 7px 10px;
-            border-radius: 999px;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .status-pill.confirmed {
-            background: #e8f7ef;
-            color: #16a34a;
-        }
-
-        .status-pill.pending {
-            background: #eef2ff;
-            color: #4f46e5;
-        }
-
-        .status-pill.finished {
-            background: #fff7e6;
-            color: #d97706;
-        }
-
-        .empty-state {
-            padding: 28px 10px 6px;
-            color: #94a3b8;
-            font-size: 14px;
-        }
-
-        .footer-mini {
-            margin-top: 18px;
-            display: flex;
-            justify-content: space-between;
-            gap: 12px;
-            flex-wrap: wrap;
-            color: #a0a9b7;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-        }
-
-        @media (max-width: 1200px) {
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .content-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 980px) {
-            .admin-shell {
-                grid-template-columns: 1fr;
-            }
-
-            .admin-sidebar {
-                border-right: none;
-                border-bottom: 1px solid #e5eaf2;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .hero-row,
-            .topbar {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .hero-row h2 {
-                font-size: 30px;
-            }
-
-            .admin-main {
-                padding: 18px;
-            }
-        }
+      }
     </style>
-</head>
-<body>
-    {% set occupancy = ((resumen.habitaciones_rentadas / 10) * 100) if resumen.habitaciones_rentadas else 0 %}
-    {% set adr = (resumen.ganancias_totales / resumen.total_noches) if resumen.total_noches > 0 else 0 %}
-    {% set revpar = (adr * occupancy / 100) if occupancy > 0 else 0 %}
-    {% set direct = resumen.ganancias_totales * 0.57 %}
-    {% set ota = resumen.ganancias_totales * 0.23 %}
-    {% set extras = resumen.ganancias_totales * 0.20 %}
+  </head>
+  <body>
+    {% set occupancy = ((resumen.habitaciones_rentadas / 10) * 100) if
+    resumen.habitaciones_rentadas else 0 %} {% set adr =
+    (resumen.ganancias_totales / resumen.total_noches) if resumen.total_noches >
+    0 else 0 %} {% set revpar = (adr * occupancy / 100) if occupancy > 0 else 0
+    %} {% set direct = resumen.ganancias_totales * 0.57 %} {% set ota =
+    resumen.ganancias_totales * 0.23 %} {% set extras =
+    resumen.ganancias_totales * 0.20 %}
 
     <div class="admin-shell">
-        <aside class="admin-sidebar">
+      <aside class="admin-sidebar">
+        <div>
+          <div class="brand-block">
+            <h1>Plaza Delfino</h1>
+            <p>Portal de Gestión</p>
+          </div>
+
+          <nav class="side-nav">
+            <a href="{{ url_for('admin_dashboard') }}" class="active"
+              >▣ Panel</a
+            >
+            <a href="#room-status">▤ Estado de Habitaciones</a>
+            <a href="{{ url_for('admin_bookings') }}">◫ Reservas</a>
+            <a href="{{ url_for('admin_clients') }}">◎ Clientes</a>
+            <a href="{{ url_for('admin_logout') }}">↩ Cerrar Sesión</a>
+          </nav>
+        </div>
+
+        <div class="side-bottom">
+          <a
+            href="{{ url_for('admin_nueva_reservacion') }}"
+            class="new-booking-btn"
+            >＋ Nueva Reserva</a
+          >
+        </div>
+      </aside>
+
+      <main class="admin-main">
+        <div class="topbar">
+          <div class="profile-chip">
             <div>
-                <div class="brand-block">
-                    <h1>Plaza Delfino</h1>
-                    <p>Management Portal</p>
-                </div>
+              <small>Perfil del Gerente</small>
+              <strong>{{ session.get('admin_usuario', 'Admin') }}</strong>
+            </div>
+            <div class="profile-avatar">A</div>
+          </div>
+        </div>
 
-                <nav class="side-nav">
-                    <a href="{{ url_for('admin_dashboard') }}" class="active">▣ Dashboard</a>
-                    <a href="#room-status">▤ Room Status</a>
-                    <a href="{{ url_for('admin_bookings') }}">◫ Bookings</a>
-                    <a href="{{ url_for('admin_clients') }}">◎ Clients</a>
-                    <a href="{{ url_for('admin_logout') }}">↩ Logout</a>
-                </nav>
+        <div class="hero-row">
+          <div>
+            <h2>Visión General</h2>
+            <p>Métricas de rendimiento de Plaza Delfino 2024.</p>
+          </div>
+
+          <div class="hero-actions">
+            <a href="#" class="btn-primary">Datos en Tiempo Real</a>
+          </div>
+        </div>
+
+        <div class="stats-grid" id="analytics">
+          <article class="stat-card">
+            <span>Ingresos Totales</span>
+            <strong>${{ resumen.ganancias_totales }}</strong>
+            <small>↑ Ingresos acumulados por reservas confirmadas</small>
+          </article>
+
+          <article class="stat-card">
+            <span>Tarifa Diaria Promedio</span>
+            <strong>${{ adr|round(2) }}</strong>
+            <small>↑ Tarifa promedio por noche reservada</small>
+          </article>
+
+          <article class="stat-card">
+            <span>Noches Reservadas</span>
+            <strong>{{ resumen.total_noches }}</strong>
+            <small>↑ Total de días de ocupación registrados</small>
+          </article>
+
+          <article class="stat-card">
+            <span>Ocupación</span>
+            <strong>{{ occupancy|round(0)|int }}%</strong>
+            <small class="{% if occupancy < 40 %}negative{% endif %}">
+              {% if occupancy < 40 %} ↓ Ocupación baja esta semana {% else %} ↑
+              Buen nivel de ocupación {% endif %}
+            </small>
+          </article>
+        </div>
+
+        <div class="content-grid">
+          <section class="panel" id="room-status">
+            <div class="panel-head">
+              <div>
+                <h3>Tendencias de Ocupación</h3>
+                <p>Pronóstico semanal vs real</p>
+              </div>
+              <a href="#analytics" class="panel-link">Real · Pronóstico</a>
             </div>
 
-            <div class="side-bottom">
-                <a href="{{ url_for('admin_nueva_reservacion') }}" class="new-booking-btn">＋ New Booking</a>
-            </div>
-        </aside>
-
-        <main class="admin-main">
-            <div class="topbar">
-                <div class="search-box">&nbsp; Search analytics or clients...</div>
-
-                <div class="topbar-right">
-                    <div class="icon-circle">🔔</div>
-                    <div class="icon-circle">⚙</div>
-
-                    <div class="profile-chip">
-                        <div>
-                            <small>Manager Profile</small>
-                            <strong>{{ session.get('admin_usuario', 'Admin') }}</strong>
-                        </div>
-                        <div class="profile-avatar">A</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="hero-row">
-                <div>
-                    <h2>Strategic Overview</h2>
-                    <p>Plaza Delfino performance metrics for 2024.</p>
-                </div>
-
-                <div class="hero-actions">
-                    <a href="#" class="btn-light">Export Report</a>
-                    <a href="#" class="btn-primary">Real-Time Feed</a>
-                </div>
+            <div class="chart-placeholder">
+              <div class="chart-line-1">
+                <svg viewBox="0 0 100 40" preserveAspectRatio="none">
+                  <polyline
+                    fill="none"
+                    stroke="#2563eb"
+                    stroke-width="2.8"
+                    points="0,28 15,24 30,26 45,19 60,14 75,16 100,11"
+                  />
+                </svg>
+              </div>
+              <div class="chart-line-2">
+                <svg viewBox="0 0 100 40" preserveAspectRatio="none">
+                  <polyline
+                    fill="none"
+                    stroke="#94a3b8"
+                    stroke-width="2.4"
+                    stroke-dasharray="4 4"
+                    points="0,30 15,27 30,24 45,22 60,20 75,17 100,15"
+                  />
+                </svg>
+              </div>
             </div>
 
-            <div class="stats-grid" id="analytics">
-                <article class="stat-card">
-                    <span>Total Revenue</span>
-                    <strong>${{ resumen.ganancias_totales }}</strong>
-                    <small>↑ Ingresos acumulados por reservas confirmadas</small>
-                </article>
+            <div class="chart-labels">
+              <span>Lun</span>
+              <span>Mar</span>
+              <span>Mié</span>
+              <span>Jue</span>
+              <span>Vie</span>
+              <span>Sáb</span>
+              <span>Dom</span>
+            </div>
+          </section>
 
-                <article class="stat-card">
-                    <span>Avg Daily Rate</span>
-                    <strong>${{ adr|round(2) }}</strong>
-                    <small>↑ Tarifa promedio por noche reservada</small>
-                </article>
-
-                <article class="stat-card">
-                    <span>Reserved Nights</span>
-                    <strong>{{ resumen.total_noches }}</strong>
-                    <small>↑ Total de días de ocupación registrados</small>
-                </article>
-
-                <article class="stat-card">
-                    <span>Occupancy</span>
-                    <strong>{{ occupancy|round(0)|int }}%</strong>
-                    <small class="{% if occupancy < 40 %}negative{% endif %}">
-                        {% if occupancy < 40 %}
-                            ↓ Ocupación baja esta semana
-                        {% else %}
-                            ↑ Buen nivel de ocupación
-                        {% endif %}
-                    </small>
-                </article>
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <h3>Canales de Ingreso</h3>
+                <p>Distribución de la mezcla</p>
+              </div>
             </div>
 
-            <div class="content-grid">
-                <section class="panel" id="room-status">
-                    <div class="panel-head">
-                        <div>
-                            <h3>Occupancy Trends</h3>
-                            <p>Weekly forecast vs actual</p>
-                        </div>
-
-                        <a href="#analytics" class="panel-link">Actual · Forecast</a>
-                    </div>
-
-                    <div class="chart-placeholder">
-                        <div class="chart-line-1">
-                            <svg viewBox="0 0 100 40" preserveAspectRatio="none">
-                                <polyline
-                                    fill="none"
-                                    stroke="#2563eb"
-                                    stroke-width="2.8"
-                                    points="0,28 15,24 30,26 45,19 60,14 75,16 100,11"
-                                />
-                            </svg>
-                        </div>
-
-                        <div class="chart-line-2">
-                            <svg viewBox="0 0 100 40" preserveAspectRatio="none">
-                                <polyline
-                                    fill="none"
-                                    stroke="#94a3b8"
-                                    stroke-width="2.4"
-                                    stroke-dasharray="4 4"
-                                    points="0,30 15,27 30,24 45,22 60,20 75,17 100,15"
-                                />
-                            </svg>
-                        </div>
-                    </div>
-
-                    <div class="chart-labels">
-                        <span>Mon</span>
-                        <span>Tue</span>
-                        <span>Wed</span>
-                        <span>Thu</span>
-                        <span>Fri</span>
-                        <span>Sat</span>
-                        <span>Sun</span>
-                    </div>
-                </section>
-
-                <section class="panel">
-                    <div class="panel-head">
-                        <div>
-                            <h3>Revenue Channels</h3>
-                            <p>Distribution mix</p>
-                        </div>
-                    </div>
-
-                    <div class="donut-wrap">
-                        <div class="donut" style="background: conic-gradient(#5b7cff 0 {{ occupancy }}%, #e8ecf5 {{ occupancy }}% 100%);">
-                            <span>{{ occupancy|round(0)|int }}%</span>
-                        </div>
-                    </div>
-
-                    <div class="channel-list">
-                        <div class="channel-row">
-                            <span><i class="dot" style="background:#5b7cff;"></i>Direct Bookings</span>
-                            <strong>${{ direct|round(0)|int }}</strong>
-                        </div>
-
-                        <div class="channel-row">
-                            <span><i class="dot" style="background:#94a3b8;"></i>OTA Partners</span>
-                            <strong>${{ ota|round(0)|int }}</strong>
-                        </div>
-
-                        <div class="channel-row">
-                            <span><i class="dot" style="background:#f6c453;"></i>Extras / Premium</span>
-                            <strong>${{ extras|round(0)|int }}</strong>
-                        </div>
-
-                        <div class="channel-row">
-                            <span><i class="dot" style="background:#10b981;"></i>RevPAR</span>
-                            <strong>${{ revpar|round(2) }}</strong>
-                        </div>
-                    </div>
-                </section>
+            <div class="donut-wrap">
+              <div
+                class="donut"
+                style="background: conic-gradient(#5b7cff 0 {{ occupancy }}%, #e8ecf5 {{ occupancy }}% 100%);"
+              >
+                <span>{{ occupancy|round(0)|int }}%</span>
+              </div>
             </div>
 
-            <section class="panel table-panel" id="bookings">
-                <div class="panel-head">
-                    <div>
-                        <h3>Recent Bookings</h3>
-                        <p>Últimas reservas confirmadas</p>
-                    </div>
-
-                    <a href="{{ url_for('admin_clients') }}" class="panel-link">View full database</a>
-                </div>
-
-                {% if reservas %}
-                    <div class="table-wrap">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Guest</th>
-                                    <th>Status</th>
-                                    <th>Room Type</th>
-                                    <th>Stay Dates</th>
-                                    <th>Revenue</th>
-                                    <th>Room</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for reserva in reservas|reverse %}
-                                    <tr>
-                                        <td class="guest-cell">
-                                            <strong>{{ reserva.cliente.nombre }}</strong>
-                                            <small>{{ reserva.cliente.email }}</small>
-                                        </td>
-                                        <td>
-                                            <span class="status-pill confirmed">Confirmed</span>
-                                        </td>
-                                        <td>{{ reserva.detalle.habitacion.tipo }}</td>
-                                        <td>{{ reserva.detalle.fecha_entrada }} → {{ reserva.detalle.fecha_salida }}</td>
-                                        <td>${{ reserva.detalle.total }}</td>
-                                        <td>{{ reserva.detalle.habitacion.id }} - {{ reserva.detalle.habitacion.nombre }}</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <div class="empty-state">
-                        Todavía no hay reservas confirmadas. Cuando registres una, aquí aparecerá en formato de dashboard.
-                    </div>
-                {% endif %}
-            </section>
-
-            <div class="footer-mini">
-                <span>© 2024 Plaza Delfino Management Group</span>
-                <span>System Status: Optimal</span>
-                <span>Privacy Policy</span>
-                <span>Support Portal</span>
+            <div class="channel-list">
+              <div class="channel-row">
+                <span
+                  ><i class="dot" style="background: #5b7cff"></i>Reservas
+                  Directas</span
+                >
+                <strong>${{ direct|round(0)|int }}</strong>
+              </div>
+              <div class="channel-row">
+                <span
+                  ><i class="dot" style="background: #94a3b8"></i>Socios
+                  OTA</span
+                >
+                <strong>${{ ota|round(0)|int }}</strong>
+              </div>
+              <div class="channel-row">
+                <span
+                  ><i class="dot" style="background: #f6c453"></i>Extras /
+                  Premium</span
+                >
+                <strong>${{ extras|round(0)|int }}</strong>
+              </div>
+              <div class="channel-row">
+                <span
+                  ><i class="dot" style="background: #10b981"></i>RevPAR</span
+                >
+                <strong>${{ revpar|round(2) }}</strong>
+              </div>
             </div>
-        </main>
+          </section>
+        </div>
+
+        <section class="panel table-panel" id="bookings">
+          <div class="panel-head">
+            <div>
+              <h3>Reservas Recientes</h3>
+              <p>Últimas reservas confirmadas</p>
+            </div>
+            <a href="{{ url_for('admin_clients') }}" class="panel-link"
+              >Ver base de datos completa</a
+            >
+          </div>
+
+          {% if reservas %}
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Huésped</th>
+                  <th>Estado</th>
+                  <th>Tipo de Habitación</th>
+                  <th>Fechas de Estancia</th>
+                  <th>Ingreso</th>
+                  <th>Habitación</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for reserva in reservas|reverse %} {% if
+                reserva.estado_operativo != 'cancelada' %}
+                <tr>
+                  <td class="guest-cell">
+                    <strong>{{ reserva.cliente.nombre }}</strong>
+                    <small>{{ reserva.cliente.email }}</small>
+                  </td>
+                  <td>
+                    <span class="status-pill confirmed">Confirmada</span>
+                  </td>
+                  <td>{{ reserva.detalle.habitacion.tipo }}</td>
+                  <td>
+                    {{ reserva.detalle.fecha_entrada }} → {{
+                    reserva.detalle.fecha_salida }}
+                  </td>
+                  <td>${{ reserva.detalle.total }}</td>
+                  <td>
+                    {{ reserva.detalle.habitacion.id }} - {{
+                    reserva.detalle.habitacion.nombre }}
+                  </td>
+                </tr>
+                {% endif %} {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <div class="empty-state">
+            Todavía no hay reservas confirmadas. Cuando registres una, aquí
+            aparecerá en formato de dashboard.
+          </div>
+          {% endif %}
+        </section>
+
+        <div class="footer-mini">
+          <span>© 2024 Plaza Delfino Management Group</span>
+          <span>Estado del Sistema: Óptimo</span>
+          <span>Política de Privacidad</span>
+          <span>Portal de Soporte</span>
+        </div>
+      </main>
     </div>
-</body>
+  </body>
 </html>

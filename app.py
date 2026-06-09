@@ -463,9 +463,12 @@ def get_reservas_db():
         apellido_cliente = (row["cliente_apellido"] or "").strip()
         nombre_completo = f"{nombre_cliente} {apellido_cliente}".strip()
 
-        if row["tiene_checkout"]:
+        estado_reserva = (row["estado_reserva"] or "").strip().lower()
+        if estado_reserva in ("cancelada", "cancelled"):
+            estado_operativo = "cancelada"
+        elif row["tiene_checkout"]:
             estado_operativo = "checked_out"
-        elif row["tiene_checkin"] or (row["estado_reserva"] or "").lower() in ("checked_in", "checkin", "ocupada"):
+        elif row["tiene_checkin"] or estado_reserva in ("checked_in", "checkin", "ocupada"):
             estado_operativo = "checked_in"
         else:
             estado_operativo = "reservada"
@@ -513,6 +516,8 @@ def resumen_admin():
     dias_por_habitacion = {}
 
     for reserva in reservas:
+        if reserva["estado_operativo"] == "cancelada":
+            continue
         detalle = reserva["detalle"]
         habitacion = detalle["habitacion"]
         habitacion_id = habitacion["id"]
@@ -547,6 +552,8 @@ def obtener_clientes_admin():
     clientes = {}
 
     for reserva in reservas:
+        if reserva["estado_operativo"] == "cancelada":
+            continue
         cliente = reserva["cliente"]
         detalle = reserva["detalle"]
         email = (cliente["email"] or "").strip().lower() or f"sin-correo-{cliente['nombre']}"
@@ -582,7 +589,7 @@ def obtener_habitaciones_admin():
 
     activas_por_numero = {}
     for reserva in reservas:
-        if reserva["estado_operativo"] == "checked_out":
+        if reserva["estado_operativo"] in ("checked_out", "cancelada"):
             continue
         numero = str(reserva["detalle"]["habitacion"]["numero"])
         activas_por_numero[numero] = reserva
@@ -1175,6 +1182,42 @@ def admin_check_out(folio):
         ya_checkout = fetch_one("SELECT id_checkout FROM CHECKOUT WHERE id_reserva = %s", (id_reserva,))
         if not ya_checkout:
             svc.hacer_checkout(id_reserva, folio, admin_id)
+
+    return redirect(url_for("admin_bookings"))
+
+
+@app.route("/admin/bookings/cancelar/<folio>")
+@admin_required
+@role_required("gerente", "recepcionista")
+def admin_cancelar_reserva(folio):
+    id_reserva = folio_to_id(folio)
+
+    if id_reserva:
+        # Verificar que no tenga check-in ni check-out
+        ya_checkin  = fetch_one("SELECT id_checkin  FROM CHECKIN  WHERE id_reserva = %s", (id_reserva,))
+        ya_checkout = fetch_one("SELECT id_checkout FROM CHECKOUT WHERE id_reserva = %s", (id_reserva,))
+
+        if not ya_checkin and not ya_checkout:
+            # Cancelar la reserva
+            execute_query(
+                "UPDATE RESERVAS SET estado_reserva = 'cancelada' WHERE id_reserva = %s",
+                (id_reserva,)
+            )
+            # Liberar la habitación
+            execute_query(
+                """
+                UPDATE HABITACIONES h
+                INNER JOIN RESERVAS r ON r.id_habitacion = h.id_habitacion
+                SET h.estado = 'libre'
+                WHERE r.id_reserva = %s
+                """,
+                (id_reserva,)
+            )
+            # Marcar la factura como cancelada (si existe)
+            execute_query(
+                "UPDATE FACTURAS SET estado_factura = 'cancelada' WHERE id_reserva = %s",
+                (id_reserva,)
+            )
 
     return redirect(url_for("admin_bookings"))
 
