@@ -140,6 +140,23 @@ CREATE TABLE PAGOS (
     FOREIGN KEY (id_factura) REFERENCES FACTURAS(id_factura)
 );
 
+ALTER TABLE PAGOS
+ADD COLUMN titular VARCHAR(150),
+ADD COLUMN ultimos_4 VARCHAR(4),
+ADD COLUMN tipo_tarjeta VARCHAR(20);
+
+CREATE TABLE TARJETAS_CLIENTE (
+    id_tarjeta INT PRIMARY KEY AUTO_INCREMENT,
+    id_cliente INT NOT NULL,
+    titular VARCHAR(150) NOT NULL,
+    numero_enmascarado VARCHAR(25) NOT NULL,
+    ultimos_4 VARCHAR(4) NOT NULL,
+    vencimiento VARCHAR(10) NOT NULL,
+    fecha_registro DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_cliente) REFERENCES CLIENTES(id_cliente)
+);
+
+
 -- Insertar roles iniciales
 INSERT INTO ROLES (id_rol, nombre_rol, descripcion) VALUES
 (1, 'cliente', 'Usuarios que buscan reservar en el hotel'),
