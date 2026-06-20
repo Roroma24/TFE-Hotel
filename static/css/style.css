@@ -1678,3 +1678,30 @@ textarea {
     grid-template-columns: 1fr;
   }
 }
+.saved-cards { margin-bottom: 24px; }
+.saved-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 16px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    cursor: pointer;
+    margin-bottom: 10px;
+    transition: .25s ease;
+}
+.saved-card:hover { border-color: var(--blue); }
+.saved-card-info { display: flex; flex-direction: column; }
+.saved-card-info strong { font-size: .95rem; }
+.saved-card-info span { font-size: .85rem; color: var(--muted); }
+.divider { text-align: center; margin: 18px 0; color: var(--muted); font-size: .85rem; }
+.save-card-check { display: flex; align-items: center; gap: 10px; font-size: .9rem; color: var(--muted); margin-top: 10px; }
+.payment-btn { width: 100%; margin-top: 20px; }
+
+/* Asegura que los paneles mantengan consistencia visual */
+.booking-panel, .side-panel {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 40px;
+}

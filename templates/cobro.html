@@ -3,10 +3,7 @@
 <section class="booking-top">
   <div class="container">
     <h1>Cobro</h1>
-    <p>
-      Revise el resumen de su reserva y capture los datos de pago para finalizar
-      el proceso.
-    </p>
+    <p>Revise el resumen de su reserva y capture los datos de pago para finalizar el proceso.</p>
   </div>
 </section>
 
@@ -16,79 +13,65 @@
             <p class="eyebrow">Cuarto paso</p>
             <h2>Finalice su reserva</h2>
 
-            <form method="post">
-                <div class="form-grid">
-                    <div class="form-group" style="grid-column: 1 / -1;">
-                        <label>Nombre del titular</label>
-                        <input type="text" name="titular" required>
-                    </div>
+            <form method="POST" class="payment-form">
+                {% if tarjetas %}
+                <div class="saved-cards">
+                    <h3>Tarjetas guardadas</h3>
+                    {% for tarjeta in tarjetas %}
+                    <label class="saved-card">
+                        <input type="radio" name="tarjeta_guardada" value="{{ tarjeta.id_tarjeta }}">
+                        <div class="saved-card-info">
+                            <strong>{{ tarjeta.titular }}</strong>
+                            <span>{{ tarjeta.numero_enmascarado }}</span>
+                            <span>Vence: {{ tarjeta.vencimiento }}</span>
+                        </div>
+                    </label>
+                    {% endfor %}
+                    <button type="button" id="btnNuevaTarjeta" class="btn-line">Usar una nueva tarjeta</button>
+                    <div class="divider"><span>o capture una nueva tarjeta</span></div>
+                </div>
+                {% endif %}
 
-                    <div class="form-group" style="grid-column: 1 / -1;">
+                <div id="nuevaTarjeta" {% if tarjetas %}style="display: none;"{% endif %}>
+                    <div class="form-group">
+                        <label>Titular</label>
+                        <input type="text" name="titular" id="titular" {% if not tarjetas %}required{% endif %}>
+                    </div>
+                    <div class="form-group">
                         <label>Número de tarjeta</label>
-                        <input type="text" name="tarjeta" placeholder="1234 5678 9012 3456" required>
+                        <input type="text" name="tarjeta" id="tarjeta" placeholder="1234 5678 9012 3456" {% if not tarjetas %}required{% endif %}>
                     </div>
-
-                    <div class="form-group">
-                        <label>Vencimiento</label>
-                        <input type="text" name="vencimiento" placeholder="MM/AA" required>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Vencimiento</label>
+                            <input type="text" name="vencimiento" id="vencimiento" placeholder="MM/AA" {% if not tarjetas %}required{% endif %}>
+                        </div>
+                        <div class="form-group">
+                            <label>CVV</label>
+                            <input type="password" name="cvv" id="cvv" placeholder="123" {% if not tarjetas %}required{% endif %}>
+                        </div>
                     </div>
-
-                    <div class="form-group">
-                        <label>CVV</label>
-                        <input type="text" name="cvv" placeholder="123" required>
-                    </div>
+                    <label class="save-card-check">
+                        <input type="checkbox" name="guardar_tarjeta"> Guardar esta tarjeta para futuras reservaciones
+                    </label>
                 </div>
 
-                <button type="submit" class="btn-main full-button">
-                    Pagar y confirmar
-                </button>
+                <button type="submit" class="btn-main payment-btn" style="margin-top: 24px;">Confirmar Reserva</button>
             </form>
         </div>
 
-    <div class="side-stack">
-      <div class="side-panel">
-        <p class="eyebrow">Resumen</p>
-
+        <div class="side-stack">
+            <div class="side-panel">
+                <p class="eyebrow">Resumen</p>
                 <div class="feature-side">
-                    <div class="item">
-                        <h4>Cliente</h4>
-                        <p>{{ cliente.nombre }}</p>
-                    </div>
-
-          <div class="item">
-            <h4>Habitación</h4>
-            <p>{{ detalle.habitacion.id }} - {{ detalle.habitacion.nombre }}</p>
-          </div>
-
-          <div class="item">
-            <h4>Tipo</h4>
-            <p>{{ detalle.habitacion.tipo }}</p>
-          </div>
-
-          <div class="item">
-            <h4>Entrada</h4>
-            <p>{{ detalle.fecha_entrada }}</p>
-          </div>
-
-          <div class="item">
-            <h4>Salida</h4>
-            <p>{{ detalle.fecha_salida }}</p>
-          </div>
-
-          <div class="item">
-            <h4>Noches</h4>
-            <p>{{ detalle.noches }}</p>
-          </div>
-
-          <div class="item">
-            <h4>Personas</h4>
-            <p>{{ detalle.personas }}</p>
-          </div>
-
-                    <div class="item">
-                        <h4>Total estimado</h4>
-                        <p>${{ detalle.total }}</p>
-                    </div>
+                    <div class="item"><h4>Cliente</h4><p>{{ cliente.nombre }}</p></div>
+                    <div class="item"><h4>Habitación</h4><p>{{ detalle.habitacion.id }} - {{ detalle.habitacion.nombre }}</p></div>
+                    <div class="item"><h4>Tipo</h4><p>{{ detalle.habitacion.tipo }}</p></div>
+                    <div class="item"><h4>Entrada</h4><p>{{ detalle.fecha_entrada }}</p></div>
+                    <div class="item"><h4>Salida</h4><p>{{ detalle.fecha_salida }}</p></div>
+                    <div class="item"><h4>Noches</h4><p>{{ detalle.noches }}</p></div>
+                    <div class="item"><h4>Personas</h4><p>{{ detalle.personas }}</p></div>
+                    <div class="item"><h4>Total estimado</h4><p>${{ detalle.total }}</p></div>
                 </div>
             </div>
         </div>
@@ -97,56 +80,26 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-
-    const radios = document.querySelectorAll(
-        'input[name="tarjeta_guardada"]'
-    );
-
+    const radios = document.querySelectorAll('input[name="tarjeta_guardada"]');
     const nuevaTarjeta = document.getElementById('nuevaTarjeta');
-
-    const titular = document.getElementById('titular');
-    const tarjeta = document.getElementById('tarjeta');
-    const vencimiento = document.getElementById('vencimiento');
-    const cvv = document.getElementById('cvv');
-
-    const btnNuevaTarjeta = document.getElementById('btnNuevaTarjeta');
-
+    const campos = ['titular', 'tarjeta', 'vencimiento', 'cvv'];
+    
     radios.forEach(radio => {
-
         radio.addEventListener('change', function() {
-
             nuevaTarjeta.style.display = 'none';
-
-            titular.required = false;
-            tarjeta.required = false;
-            vencimiento.required = false;
-            cvv.required = false;
-
+            campos.forEach(id => document.getElementById(id).required = false);
         });
-
     });
 
+    const btnNuevaTarjeta = document.getElementById('btnNuevaTarjeta');
     if (btnNuevaTarjeta) {
-
         btnNuevaTarjeta.addEventListener('click', function() {
-
-            radios.forEach(radio => {
-                radio.checked = false;
-            });
-
+            radios.forEach(radio => radio.checked = false);
             nuevaTarjeta.style.display = 'block';
-
-            titular.required = true;
-            tarjeta.required = true;
-            vencimiento.required = true;
-            cvv.required = true;
-
-            titular.focus();
+            campos.forEach(id => document.getElementById(id).required = true);
+            document.getElementById('titular').focus();
         });
-
     }
-
 });
 </script>
-
 {% endblock %}

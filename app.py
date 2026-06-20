@@ -913,46 +913,78 @@ def cobro():
 
     cliente = session["cliente_reserva"]
     detalle = session["detalle_reserva"]
+    desde_admin = session.get("reserva_desde_admin", False)
+    
+    # Recuperación de tarjetas guardadas
+    tarjetas_cliente = []
+    cliente_db = fetch_one("SELECT id_cliente FROM CLIENTES WHERE correo = %s", (cliente["email"],))
 
-    if request.method == "POST":
-        id_cliente    = get_or_create_cliente(cliente["nombre"], cliente["email"], cliente["telefono"])
-        id_usuario    = get_public_operator_user_id()
-        id_habitacion = detalle["habitacion"]["id_db"]
-
-        resultado = svc.crear_reserva_online(
-            id_cliente    = id_cliente,
-            id_habitacion = id_habitacion,
-            id_usuario    = id_usuario,
-            fecha_entrada = detalle["fecha_entrada"],
-            fecha_salida  = detalle["fecha_salida"],
-            personas      = int(detalle["personas"]),
-            precio_base   = detalle["habitacion"]["precio"],
-            noches        = detalle["noches"],
+    if cliente_db:
+        tarjetas_cliente = fetch_all(
+            """
+            SELECT id_tarjeta, titular, numero_enmascarado, vencimiento
+            FROM TARJETAS_CLIENTE
+            WHERE id_cliente = %s
+            ORDER BY fecha_registro DESC
+            """,
+            (cliente_db["id_cliente"],)
         )
 
-        confirmacion = {
+    if request.method == "POST":
+        id_cliente = get_or_create_cliente(
+            cliente["nombre"], cliente["email"], cliente["telefono"],
+            documento_identidad=cliente.get("documento_identidad"),
+            direccion=cliente.get("direccion"),
+            id_empresa=cliente.get("id_empresa")
+        )
+        
+        titular = request.form.get("titular", "").strip()
+        numero_tarjeta = request.form.get("tarjeta", "").replace(" ", "")
+        vencimiento = request.form.get("vencimiento", "").strip()
+        ultimos_4 = numero_tarjeta[-4:] if numero_tarjeta else request.form.get("tarjeta_select", "")[-4:]
+
+        # Lógica de guardado de tarjeta
+        if request.form.get("guardar_tarjeta"):
+            tarjeta_existente = fetch_one(
+                "SELECT id_tarjeta FROM TARJETAS_CLIENTE WHERE id_cliente = %s AND ultimos_4 = %s AND vencimiento = %s",
+                (id_cliente, ultimos_4, vencimiento)
+            )
+            if not tarjeta_existente:
+                execute_query(
+                    "INSERT INTO TARJETAS_CLIENTE (id_cliente, titular, numero_enmascarado, ultimos_4, vencimiento) VALUES (%s,%s,%s,%s,%s)",
+                    (id_cliente, titular, f"**** **** **** {ultimos_4}", ultimos_4, vencimiento)
+                )
+
+        # Selección de servicio de reserva
+        if desde_admin:
+            checkin_directo = detalle.get("checkin_directo", False)
+            resultado = svc.crear_reserva_recepcion(
+                id_cliente=id_cliente, id_habitacion=detalle["habitacion"]["id_db"],
+                id_usuario=session.get("admin_id"), fecha_entrada=detalle["fecha_entrada"],
+                fecha_salida=detalle["fecha_salida"], personas=int(detalle["personas"]),
+                precio_base=detalle["habitacion"]["precio"], noches=detalle["noches"],
+                checkin_directo=checkin_directo
+            )
+        else:
+            resultado = svc.crear_reserva_online(
+                id_cliente=id_cliente, id_habitacion=detalle["habitacion"]["id_db"],
+                id_usuario=get_public_operator_user_id(), fecha_entrada=detalle["fecha_entrada"],
+                fecha_salida=detalle["fecha_salida"], personas=int(detalle["personas"]),
+                precio_base=detalle["habitacion"]["precio"], noches=detalle["noches"],
+                titular=titular, ultimos_4=ultimos_4
+            )
+
+        session["confirmacion_reserva"] = {
             "folio": resultado["folio"],
             "cliente": cliente,
             "detalle": detalle,
             "estado_operativo": "reservada",
-            "pago": {
-                "titular":     request.form.get("titular", "").strip(),
-                "tarjeta":     request.form.get("tarjeta", "")[-4:],
-                "vencimiento": request.form.get("vencimiento", ""),
-                "cvv":         request.form.get("cvv", ""),
-            },
+            "pago": {"titular": titular, "tarjeta": ultimos_4, "vencimiento": vencimiento}
         }
-
-        session["confirmacion_reserva"] = confirmacion
         session["desde_admin_confirmacion"] = desde_admin
         return redirect(url_for("confirmacion_reserva"))
 
-    return render_template(
-        "cobro.html",
-        cliente=cliente,
-        detalle=detalle,
-        tarjetas=tarjetas_cliente
-    )
+    return render_template("cobro.html", cliente=cliente, detalle=detalle, tarjetas=tarjetas_cliente)
 
 @app.route("/reservas/confirmacion")
 def confirmacion_reserva():
