@@ -11,63 +11,49 @@
 </section>
 
 <section>
-  <div class="container booking-layout">
-    <div class="booking-panel">
-      <p class="eyebrow">Cuarto paso</p>
-      <h2>Finalice su reserva</h2>
+    <div class="container booking-layout">
+        <div class="booking-panel">
+            <p class="eyebrow">Cuarto paso</p>
+            <h2>Finalice su reserva</h2>
 
-      <form method="post">
-        <div class="form-grid">
-          <div class="form-group" style="grid-column: 1 / -1">
-            <label>Nombre del titular</label>
-            <input type="text" name="titular" required />
-          </div>
+            <form method="post">
+                <div class="form-grid">
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label>Nombre del titular</label>
+                        <input type="text" name="titular" required>
+                    </div>
 
-          <div class="form-group" style="grid-column: 1 / -1">
-            <label>Número de tarjeta</label>
-            <input
-              type="text"
-              name="tarjeta"
-              placeholder="1234 5678 9012 3456"
-              required
-            />
-          </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label>Número de tarjeta</label>
+                        <input type="text" name="tarjeta" placeholder="1234 5678 9012 3456" required>
+                    </div>
 
-          <div class="form-group">
-            <label>Vencimiento</label>
-            <input
-              type="text"
-              name="vencimiento"
-              placeholder="MM/AA"
-              required
-            />
-          </div>
+                    <div class="form-group">
+                        <label>Vencimiento</label>
+                        <input type="text" name="vencimiento" placeholder="MM/AA" required>
+                    </div>
 
-          <div class="form-group">
-            <label>CVV</label>
-            <input type="text" name="cvv" placeholder="123" required />
-          </div>
+                    <div class="form-group">
+                        <label>CVV</label>
+                        <input type="text" name="cvv" placeholder="123" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-main full-button">
+                    Pagar y confirmar
+                </button>
+            </form>
         </div>
-
-        <button
-          type="submit"
-          class="btn-main full-button"
-          style="margin-top: 24px"
-        >
-          Pagar y confirmar
-        </button>
-      </form>
-    </div>
 
     <div class="side-stack">
       <div class="side-panel">
         <p class="eyebrow">Resumen</p>
 
-        <div class="feature-side">
-          <div class="item">
-            <h4>Cliente</h4>
-            <p>{{ cliente.nombre }}</p>
-          </div>
+                <div class="feature-side">
+                    <div class="item">
+                        <h4>Cliente</h4>
+                        <p>{{ cliente.nombre }}</p>
+                    </div>
 
           <div class="item">
             <h4>Habitación</h4>
@@ -99,13 +85,68 @@
             <p>{{ detalle.personas }}</p>
           </div>
 
-          <div class="item">
-            <h4>Total estimado</h4>
-            <p>${{ detalle.total }}</p>
-          </div>
+                    <div class="item">
+                        <h4>Total estimado</h4>
+                        <p>${{ detalle.total }}</p>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    const radios = document.querySelectorAll(
+        'input[name="tarjeta_guardada"]'
+    );
+
+    const nuevaTarjeta = document.getElementById('nuevaTarjeta');
+
+    const titular = document.getElementById('titular');
+    const tarjeta = document.getElementById('tarjeta');
+    const vencimiento = document.getElementById('vencimiento');
+    const cvv = document.getElementById('cvv');
+
+    const btnNuevaTarjeta = document.getElementById('btnNuevaTarjeta');
+
+    radios.forEach(radio => {
+
+        radio.addEventListener('change', function() {
+
+            nuevaTarjeta.style.display = 'none';
+
+            titular.required = false;
+            tarjeta.required = false;
+            vencimiento.required = false;
+            cvv.required = false;
+
+        });
+
+    });
+
+    if (btnNuevaTarjeta) {
+
+        btnNuevaTarjeta.addEventListener('click', function() {
+
+            radios.forEach(radio => {
+                radio.checked = false;
+            });
+
+            nuevaTarjeta.style.display = 'block';
+
+            titular.required = true;
+            tarjeta.required = true;
+            vencimiento.required = true;
+            cvv.required = true;
+
+            titular.focus();
+        });
+
+    }
+
+});
+</script>
+
 {% endblock %}

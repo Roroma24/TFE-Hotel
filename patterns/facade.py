@@ -45,6 +45,8 @@ class ServicioReservas:
         personas: int,
         precio_base: float,
         noches: int,
+        titular: str = "",
+        ultimos_4: str = ""
     ) -> dict:
         """
         Orquesta: Strategy → INSERT reserva → Factory (factura + pago)
@@ -71,7 +73,14 @@ class ServicioReservas:
         # =========================
         # Factura + pago (Factory)
         # =========================
-        FabricaDocumento.crear_factura_y_pago(self._exec, id_reserva, id_cliente, total)
+        FabricaDocumento.crear_factura_y_pago(
+            self._exec,
+            id_reserva,
+            id_cliente,
+            total,
+            titular,
+            ultimos_4
+        )
 
         # =========================
         # Estado habitación (State)

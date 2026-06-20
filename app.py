@@ -906,7 +906,6 @@ def detalles_reserva():
         error=error,
     )
 
-
 @app.route("/cobro", methods=["GET", "POST"])
 def cobro():
     if "cliente_reserva" not in session or "detalle_reserva" not in session:
@@ -914,51 +913,22 @@ def cobro():
 
     cliente = session["cliente_reserva"]
     detalle = session["detalle_reserva"]
-    desde_admin = session.get("reserva_desde_admin", False)
 
     if request.method == "POST":
-        id_cliente = get_or_create_cliente(
-            cliente["nombre"],
-            cliente["email"],
-            cliente["telefono"],
-            documento_identidad=cliente.get("documento_identidad"),
-            direccion=cliente.get("direccion"),
-            id_empresa=cliente.get("id_empresa"),
-        )
-        
-        if desde_admin:
-            id_usuario = session.get("admin_id")
-            checkin_directo = detalle.get("checkin_directo", False)
-        else:
-            id_usuario = get_public_operator_user_id()
-            checkin_directo = False
-
+        id_cliente    = get_or_create_cliente(cliente["nombre"], cliente["email"], cliente["telefono"])
+        id_usuario    = get_public_operator_user_id()
         id_habitacion = detalle["habitacion"]["id_db"]
 
-        if desde_admin:
-            from patterns.strategy import ContextoReserva, ReservaRecepcion, TarifaEstandar
-            resultado = svc.crear_reserva_recepcion(
-                id_cliente=id_cliente,
-                id_habitacion=id_habitacion,
-                id_usuario=id_usuario,
-                fecha_entrada=detalle["fecha_entrada"],
-                fecha_salida=detalle["fecha_salida"],
-                personas=int(detalle["personas"]),
-                precio_base=detalle["habitacion"]["precio"],
-                noches=detalle["noches"],
-                checkin_directo=checkin_directo,
-            )
-        else:
-            resultado = svc.crear_reserva_online(
-                id_cliente=id_cliente,
-                id_habitacion=id_habitacion,
-                id_usuario=id_usuario,
-                fecha_entrada=detalle["fecha_entrada"],
-                fecha_salida=detalle["fecha_salida"],
-                personas=int(detalle["personas"]),
-                precio_base=detalle["habitacion"]["precio"],
-                noches=detalle["noches"],
-            )
+        resultado = svc.crear_reserva_online(
+            id_cliente    = id_cliente,
+            id_habitacion = id_habitacion,
+            id_usuario    = id_usuario,
+            fecha_entrada = detalle["fecha_entrada"],
+            fecha_salida  = detalle["fecha_salida"],
+            personas      = int(detalle["personas"]),
+            precio_base   = detalle["habitacion"]["precio"],
+            noches        = detalle["noches"],
+        )
 
         confirmacion = {
             "folio": resultado["folio"],
@@ -966,10 +936,10 @@ def cobro():
             "detalle": detalle,
             "estado_operativo": "reservada",
             "pago": {
-                "titular": request.form.get("titular", "").strip(),
-                "tarjeta": request.form.get("tarjeta", "")[-4:],
+                "titular":     request.form.get("titular", "").strip(),
+                "tarjeta":     request.form.get("tarjeta", "")[-4:],
                 "vencimiento": request.form.get("vencimiento", ""),
-                "cvv": request.form.get("cvv", ""),
+                "cvv":         request.form.get("cvv", ""),
             },
         }
 
@@ -977,8 +947,12 @@ def cobro():
         session["desde_admin_confirmacion"] = desde_admin
         return redirect(url_for("confirmacion_reserva"))
 
-    return render_template("cobro.html", cliente=cliente, detalle=detalle)
-
+    return render_template(
+        "cobro.html",
+        cliente=cliente,
+        detalle=detalle,
+        tarjetas=tarjetas_cliente
+    )
 
 @app.route("/reservas/confirmacion")
 def confirmacion_reserva():

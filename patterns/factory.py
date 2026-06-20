@@ -123,45 +123,81 @@ class Factura(DocumentoContable):
 class Pago(DocumentoContable):
     """
     Registra un pago vinculado a una factura.
-
-    Uso en /cobro, después de crear la factura:
-        pago = Pago(id_factura, id_reserva, total)
-        pago.insertar(execute_query)
     """
 
-    def __init__(self, id_factura: int, id_reserva: int, monto: float):
-        self.id_factura  = id_factura
-        self.referencia  = f"REF-{id_reserva}"
-        self.monto       = round(float(monto), 2)
-        self.fecha       = date.today()
+    def __init__(
+        self,
+        id_factura: int,
+        id_reserva: int,
+        monto: float,
+        titular: str = "",
+        ultimos_4: str = ""
+    ):
+        self.id_factura = id_factura
+        self.referencia = f"REF-{id_reserva}"
+        self.monto = round(float(monto), 2)
+        self.fecha = date.today()
+        self.titular = titular
+        self.ultimos_4 = ultimos_4
 
     def insertar(self, execute_query_fn) -> int:
         return execute_query_fn(
             """
             INSERT INTO PAGOS
-                (id_factura, fecha_pago, monto, referencia, estado_pago)
-            VALUES (%s, %s, %s, %s, %s)
+            (
+                id_factura,
+                fecha_pago,
+                monto,
+                referencia,
+                estado_pago,
+                titular,
+                ultimos_4
+            )
+            VALUES (%s,%s,%s,%s,%s,%s,%s)
             """,
-            (self.id_factura, self.fecha, self.monto, self.referencia, "aprobado"),
+            (
+                self.id_factura,
+                self.fecha,
+                self.monto,
+                self.referencia,
+                "aprobado",
+                self.titular,
+                self.ultimos_4
+            ),
         )
 
 
 class FabricaDocumento:
     """
-    Crea y persiste factura + pago en una sola llamada.
-
-    Uso en /cobro — reemplaza las dos inserciones SQL directas:
-        id_factura = FabricaDocumento.crear_factura_y_pago(
-            execute_query, id_reserva, id_cliente, total
-        )
+    Crea y persiste factura + pago.
     """
 
     @staticmethod
-    def crear_factura_y_pago(execute_query_fn, id_reserva: int, id_cliente: int, total: float) -> int:
-        factura = Factura(id_reserva, id_cliente, total)
+    def crear_factura_y_pago(
+        execute_query_fn,
+        id_reserva: int,
+        id_cliente: int,
+        total: float,
+        titular: str = "",
+        ultimos_4: str = ""
+    ) -> int:
+
+        factura = Factura(
+            id_reserva,
+            id_cliente,
+            total
+        )
+
         id_factura = factura.insertar(execute_query_fn)
 
-        pago = Pago(id_factura, id_reserva, total)
+        pago = Pago(
+            id_factura,
+            id_reserva,
+            total,
+            titular,
+            ultimos_4
+        )
+
         pago.insertar(execute_query_fn)
 
         return id_factura
