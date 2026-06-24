@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Plaza Delfino | Habitaciones{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="page-intro">
+            <p class="eyebrow">Selección de habitación</p>
+            <h1>Elija su estancia ideal</h1>
+            <p>Disponemos de 10 habitaciones seleccionables para esta maqueta.</p>
+        </div>
+
+        <div class="selection-bar">
+            <div class="selection-pill">Entrada: {{ reserva.fecha_entrada }}</div>
+            <div class="selection-pill">Salida: {{ reserva.fecha_salida }}</div>
+            <div class="selection-pill">Huéspedes: {{ reserva.huespedes }}</div>
+            {% if reserva.tipo_preferido %}
+                <div class="selection-pill">Preferencia: {{ reserva.tipo_preferido }}</div>
+            {% endif %}
+        </div>
+
+        <div class="room-grid">
+            {% for habitacion in habitaciones %}
+            <article class="room-card">
+                <div class="room-media">
+                    <img src="{{ url_for('static', filename='images/' ~ habitacion.imagen) }}" alt="{{ habitacion.nombre }}">
+                </div>
+
+                <div class="room-body">
+                    <span class="tag">{{ habitacion.tipo }}</span>
+                    <h3>{{ habitacion.nombre }}</h3>
+                    <p>{{ habitacion.descripcion }}</p>
+
+                    <div class="room-meta">
+                        <span>Capacidad: {{ habitacion.capacidad }}</span>
+                        <strong>${{ habitacion.precio }} / noche</strong>
+                    </div>
+
+                    <form method="post">
+                        <input type="hidden" name="habitacion_id" value="{{ habitacion.id }}">
+                        <button type="submit" class="btn btn-primary btn-block">Seleccionar habitación</button>
+                    </form>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

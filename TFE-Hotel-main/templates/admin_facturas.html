@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plaza Delfino | Facturación</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: "Inter", sans-serif; background: #f5f7fb; color: #1f2937; }
+        a { text-decoration: none; color: inherit; }
+
+        .shell { display: grid; grid-template-columns: 250px 1fr; min-height: 100vh; }
+
+        .sidebar { background: #f1f4f9; border-right: 1px solid #e5eaf2; padding: 26px 18px; display: flex; flex-direction: column; justify-content: space-between; }
+        .brand h1 { font-size: 28px; font-weight: 800; color: #2563eb; margin-bottom: 6px; }
+        .brand p { font-size: 11px; color: #8b98ab; letter-spacing: 1.6px; text-transform: uppercase; }
+        .nav { margin-top: 34px; display: grid; gap: 8px; }
+        .nav a { padding: 13px 14px; border-radius: 12px; color: #6b7280; font-size: 14px; font-weight: 500; }
+        .nav a.active, .nav a:hover { background: #ffffff; color: #2563eb; }
+        .btn-primary { display: inline-flex; align-items: center; justify-content: center; width: 100%; padding: 14px 16px; background: #2563eb; color: #fff; border-radius: 12px; font-size: 14px; font-weight: 600; }
+
+        .main { padding: 24px; }
+        .hero { display: flex; justify-content: space-between; gap: 18px; align-items: center; margin-bottom: 24px; flex-wrap: wrap; }
+        .hero h2 { font-size: 38px; font-weight: 800; margin-bottom: 6px; }
+        .hero p { color: #8b98ab; font-size: 14px; }
+
+        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+        .stat { background: #fff; border: 1px solid #e8edf4; border-radius: 18px; padding: 20px 24px; box-shadow: 0 4px 12px rgba(15,23,42,0.04); }
+        .stat span { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: #94a3b8; margin-bottom: 10px; }
+        .stat strong { font-size: 28px; font-weight: 800; }
+
+        .panel { background: #fff; border: 1px solid #e8edf4; border-radius: 18px; padding: 20px; box-shadow: 0 8px 24px rgba(15,23,42,0.04); margin-bottom: 18px; }
+        .panel-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 10px; }
+        .panel h3 { font-size: 20px; font-weight: 800; }
+
+        .search-bar { display: flex; gap: 10px; flex-wrap: wrap; }
+        .search-bar input { padding: 10px 14px; border: 1px solid #e7ebf2; border-radius: 10px; font-size: 13px; outline: none; min-width: 220px; }
+        .search-bar select { padding: 10px 14px; border: 1px solid #e7ebf2; border-radius: 10px; font-size: 13px; outline: none; background: #fff; }
+
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 900px; }
+        th, td { padding: 14px 10px; text-align: left; border-bottom: 1px solid #eef2f7; font-size: 13px; }
+        th { color: #94a3b8; text-transform: uppercase; font-size: 11px; letter-spacing: 0.9px; font-weight: 700; }
+        tr:hover td { background: #f8faff; }
+
+        .badge { display: inline-flex; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .badge-pagada { background: #dcfce7; color: #16a34a; }
+        .badge-cancelada { background: #fee2e2; color: #dc2626; }
+        .badge-pendiente { background: #fef9c3; color: #ca8a04; }
+
+        .btn-sm { padding: 7px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; border: none; cursor: pointer; }
+        .btn-ver { background: #eff6ff; color: #2563eb; }
+        .btn-imprimir { background: #f0fdf4; color: #16a34a; }
+        .btn-cancelar { background: #fff1f2; color: #dc2626; }
+
+        .empty { color: #94a3b8; font-size: 14px; padding: 20px 0; text-align: center; }
+
+        /* MODAL */
+        .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.45); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-backdrop.open { display: flex; }
+        .modal { background: #fff; border-radius: 20px; padding: 36px; max-width: 680px; width: 90%; max-height: 90vh; overflow-y: auto; position: relative; box-shadow: 0 24px 60px rgba(15,23,42,0.18); }
+        .modal-close { position: absolute; top: 18px; right: 20px; background: #f1f5f9; border: none; border-radius: 8px; padding: 6px 12px; cursor: pointer; font-size: 14px; font-weight: 700; color: #64748b; }
+
+        .factura-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 2px solid #e8edf4; }
+        .factura-brand { font-size: 26px; font-weight: 800; color: #2563eb; }
+        .factura-brand p { font-size: 12px; color: #94a3b8; font-weight: 400; margin-top: 4px; }
+        .factura-meta { text-align: right; font-size: 13px; color: #64748b; }
+        .factura-meta strong { display: block; font-size: 18px; color: #1f2937; font-weight: 800; }
+
+        .factura-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+        .factura-section h4 { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: #94a3b8; margin-bottom: 8px; }
+        .factura-section p { font-size: 14px; color: #1f2937; line-height: 1.8; }
+
+        .factura-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .factura-table th { background: #f8faff; padding: 10px 14px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #64748b; }
+        .factura-table td { padding: 12px 14px; border-bottom: 1px solid #eef2f7; font-size: 13px; }
+
+        .factura-totales { margin-left: auto; max-width: 280px; }
+        .factura-totales div { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; border-bottom: 1px solid #eef2f7; }
+        .factura-totales .total-final { font-weight: 800; font-size: 16px; color: #2563eb; border-bottom: none; padding-top: 12px; }
+
+        .factura-footer { margin-top: 24px; padding-top: 16px; border-top: 1px solid #eef2f7; font-size: 12px; color: #94a3b8; text-align: center; }
+
+        .print-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+        .btn-print { padding: 12px 22px; border-radius: 10px; font-size: 13px; font-weight: 700; border: none; cursor: pointer; }
+        .btn-print-primary { background: #2563eb; color: #fff; }
+        .btn-print-secondary { background: #f1f5f9; color: #64748b; }
+
+        @media print {
+            .modal-close, .print-actions, .modal-backdrop > *:not(.modal) { display: none !important; }
+            .modal { box-shadow: none; max-height: none; }
+        }
+
+        @media (max-width: 900px) {
+            .shell { grid-template-columns: 1fr; }
+            .stats { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 600px) {
+            .stats { grid-template-columns: 1fr; }
+            .factura-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="shell">
+    <aside class="sidebar">
+        <div>
+            <div class="brand">
+                <h1>Plaza Delfino</h1>
+                <p>Recepción</p>
+            </div>
+            <nav class="nav">
+                <a href="{{ url_for('admin_recepcion') }}">Recepción</a>
+                <a href="{{ url_for('admin_bookings') }}">Check-in / Check-out</a>
+                <a href="{{ url_for('admin_facturas') }}" class="active">Facturación</a>
+                <a href="{{ url_for('admin_nueva_reservacion') }}">Nueva reservación</a>
+                <a href="{{ url_for('admin_logout') }}">Cerrar sesión</a>
+            </nav>
+        </div>
+        <div>
+            <a href="{{ url_for('admin_nueva_reservacion') }}" class="btn-primary">+ Crear reservación</a>
+        </div>
+    </aside>
+
+    <main class="main">
+        <div class="hero">
+            <div>
+                <h2>Facturación</h2>
+                <p>Consulte, imprima y gestione todas las facturas generadas por el hotel.</p>
+            </div>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="stats">
+            <div class="stat">
+                <span>Total facturas</span>
+                <strong>{{ stats.total }}</strong>
+            </div>
+            <div class="stat">
+                <span>Ingresos totales</span>
+                <strong>${{ "%.2f"|format(stats.ingresos) }}</strong>
+            </div>
+            <div class="stat">
+                <span>Pagadas</span>
+                <strong style="color:#16a34a;">{{ stats.pagadas }}</strong>
+            </div>
+            <div class="stat">
+                <span>Canceladas</span>
+                <strong style="color:#dc2626;">{{ stats.canceladas }}</strong>
+            </div>
+        </div>
+
+        <!-- Tabla de facturas -->
+        <div class="panel">
+            <div class="panel-head">
+                <h3>Registro de Facturas</h3>
+                <div class="search-bar">
+                    <input type="text" id="buscar" placeholder="Buscar por folio o cliente…" oninput="filtrarTabla()">
+                    <select id="filtroEstado" onchange="filtrarTabla()">
+                        <option value="todos">Todos los estados</option>
+                        <option value="pagada">Pagada</option>
+                        <option value="cancelada">Cancelada</option>
+                        <option value="pendiente">Pendiente</option>
+                    </select>
+                </div>
+            </div>
+
+            {% if facturas %}
+            <div class="table-wrap">
+                <table id="tablaFacturas">
+                    <thead>
+                        <tr>
+                            <th># Factura</th>
+                            <th>Folio Reserva</th>
+                            <th>Cliente</th>
+                            <th>Fecha</th>
+                            <th>Habitación</th>
+                            <th>Subtotal</th>
+                            <th>IVA (16%)</th>
+                            <th>Total</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for f in facturas %}
+                        <tr data-buscar="{{ f.cliente_nombre }} {{ f.folio }}" data-estado="{{ f.estado_factura }}">
+                            <td><strong>FAC-{{ '%05d' % f.id_factura }}</strong></td>
+                            <td>{{ f.folio }}</td>
+                            <td>{{ f.cliente_nombre }}</td>
+                            <td>{{ f.fecha_factura }}</td>
+                            <td>{{ f.habitacion_numero }} - {{ f.habitacion_nombre }}</td>
+                            <td>${{ "%.2f"|format(f.subtotal) }}</td>
+                            <td>${{ "%.2f"|format(f.impuestos) }}</td>
+                            <td><strong>${{ "%.2f"|format(f.total) }}</strong></td>
+                            <td>
+                                <span class="badge badge-{{ f.estado_factura }}">{{ f.estado_factura }}</span>
+                            </td>
+                            <td style="display:flex; gap:6px; flex-wrap:wrap;">
+                                <button class="btn-sm btn-ver" onclick="verFactura({{ f | tojson }})">Ver</button>
+                                <button class="btn-sm btn-imprimir" onclick="verFactura({{ f | tojson }}, true)">Imprimir</button>
+                                {% if f.estado_factura == 'pagada' %}
+                                <a href="{{ url_for('admin_cancelar_factura', id_factura=f.id_factura) }}"
+                                   class="btn-sm btn-cancelar"
+                                   onclick="return confirm('¿Cancelar la factura FAC-{{ '%05d' % f.id_factura }}?')">Cancelar</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty">No hay facturas registradas aún.</div>
+            {% endif %}
+        </div>
+    </main>
+</div>
+
+<!-- Modal de factura -->
+<div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal" id="modalFactura">
+        <button class="modal-close" onclick="cerrarModal()">✕ Cerrar</button>
+
+        <div class="factura-header">
+            <div>
+                <div class="factura-brand">Plaza Delfino
+                    <p>Lote 42, Bahía del Coral, Alexandria Isle<br>RFC: PDR-2024-001 | Tel: +52 998 800 4200</p>
+                </div>
+            </div>
+            <div class="factura-meta">
+                <span>Factura</span>
+                <strong id="modal-num-factura"></strong>
+                <span id="modal-fecha"></span><br>
+                <span id="modal-badge"></span>
+            </div>
+        </div>
+
+        <div class="factura-grid">
+            <div class="factura-section">
+                <h4>Facturado a</h4>
+                <p id="modal-cliente"></p>
+            </div>
+            <div class="factura-section">
+                <h4>Datos de la reserva</h4>
+                <p id="modal-reserva"></p>
+            </div>
+        </div>
+
+        <table class="factura-table">
+            <thead>
+                <tr>
+                    <th>Descripción</th>
+                    <th>Noches</th>
+                    <th>Precio/noche</th>
+                    <th>Importe</th>
+                </tr>
+            </thead>
+            <tbody id="modal-items"></tbody>
+        </table>
+
+        <div class="factura-totales">
+            <div><span>Subtotal</span><span id="modal-subtotal"></span></div>
+            <div><span>IVA (16%)</span><span id="modal-iva"></span></div>
+            <div class="total-final"><span>Total</span><span id="modal-total"></span></div>
+        </div>
+
+        <div class="factura-footer">
+            Gracias por su preferencia. Esta factura fue generada electrónicamente por el sistema Plaza Delfino.<br>
+            Para aclaraciones: facturacion@plazadelfino.com
+        </div>
+
+        <div class="print-actions">
+            <button class="btn-print btn-print-secondary" onclick="cerrarModal()">Cerrar</button>
+            <button class="btn-print btn-print-primary" onclick="window.print()">🖨 Imprimir / Guardar PDF</button>
+        </div>
+    </div>
+</div>
+
+<script>
+function filtrarTabla() {
+    const texto  = document.getElementById('buscar').value.toLowerCase();
+    const estado = document.getElementById('filtroEstado').value;
+    document.querySelectorAll('#tablaFacturas tbody tr').forEach(tr => {
+        const buscar  = tr.dataset.buscar.toLowerCase();
+        const est     = tr.dataset.estado;
+        const matchTx = buscar.includes(texto);
+        const matchEs = estado === 'todos' || est === estado;
+        tr.style.display = matchTx && matchEs ? '' : 'none';
+    });
+}
+
+function verFactura(f, imprimir = false) {
+    document.getElementById('modal-num-factura').textContent = 'FAC-' + String(f.id_factura).padStart(5, '0');
+    document.getElementById('modal-fecha').textContent = f.fecha_factura;
+
+    const badgeClass = f.estado_factura === 'pagada' ? '#dcfce7' : '#fee2e2';
+    const badgeColor = f.estado_factura === 'pagada' ? '#16a34a' : '#dc2626';
+    document.getElementById('modal-badge').innerHTML =
+        `<span style="background:${badgeClass};color:${badgeColor};padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;text-transform:uppercase;">${f.estado_factura}</span>`;
+
+    document.getElementById('modal-cliente').innerHTML =
+        `<strong>${f.cliente_nombre}</strong><br>${f.cliente_correo || ''}<br>${f.cliente_telefono || ''}`;
+
+    document.getElementById('modal-reserva').innerHTML =
+        `Folio: <strong>${f.folio}</strong><br>
+         Hab: ${f.habitacion_numero} - ${f.habitacion_nombre}<br>
+         Entrada: ${f.fecha_entrada}<br>
+         Salida: ${f.fecha_salida}<br>
+         Noches: ${f.noches}`;
+
+    const precioNoche = f.noches > 0 ? (f.subtotal / f.noches).toFixed(2) : f.subtotal;
+    document.getElementById('modal-items').innerHTML = `
+        <tr>
+            <td>Alojamiento — ${f.habitacion_nombre} (${f.tipo_habitacion})</td>
+            <td>${f.noches}</td>
+            <td>$${precioNoche}</td>
+            <td>$${parseFloat(f.subtotal).toFixed(2)}</td>
+        </tr>`;
+
+    document.getElementById('modal-subtotal').textContent = '$' + parseFloat(f.subtotal).toFixed(2);
+    document.getElementById('modal-iva').textContent      = '$' + parseFloat(f.impuestos).toFixed(2);
+    document.getElementById('modal-total').textContent    = '$' + parseFloat(f.total).toFixed(2);
+
+    document.getElementById('modalBackdrop').classList.add('open');
+    if (imprimir) setTimeout(() => window.print(), 400);
+}
+
+function cerrarModal() {
+    document.getElementById('modalBackdrop').classList.remove('open');
+}
+
+document.getElementById('modalBackdrop').addEventListener('click', function(e) {
+    if (e.target === this) cerrarModal();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,793 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Plaza Delfino | Nueva reservación</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Inter", sans-serif;
+        background: #f5f7fb;
+        color: #1f2937;
+      }
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .shell {
+        display: grid;
+        grid-template-columns: 250px 1fr;
+        min-height: 100vh;
+      }
+
+      .sidebar {
+        background: #f1f4f9;
+        border-right: 1px solid #e5eaf2;
+        padding: 26px 18px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      .brand h1 {
+        font-size: 28px;
+        font-weight: 800;
+        color: #2563eb;
+        margin-bottom: 6px;
+      }
+
+      .brand p {
+        font-size: 11px;
+        color: #8b98ab;
+        letter-spacing: 1.6px;
+        text-transform: uppercase;
+      }
+
+      .nav {
+        margin-top: 34px;
+        display: grid;
+        gap: 8px;
+      }
+
+      .nav a {
+        padding: 13px 14px;
+        border-radius: 12px;
+        color: #6b7280;
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .nav a.active,
+      .nav a:hover {
+        background: #ffffff;
+        color: #2563eb;
+      }
+
+      .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 14px 16px;
+        background: #2563eb;
+        color: #fff;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+      }
+
+      .main {
+        padding: 24px;
+      }
+
+      .hero {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        align-items: center;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+      }
+
+      .hero h2 {
+        font-size: 38px;
+        font-weight: 800;
+        margin-bottom: 6px;
+      }
+
+      .hero p {
+        color: #8b98ab;
+        font-size: 14px;
+      }
+
+      .btn-light {
+        background: white;
+        border: 1px solid #e7ebf2;
+        color: #6b7280;
+        border-radius: 12px;
+        padding: 11px 16px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 1.25fr 0.95fr;
+        gap: 18px;
+        align-items: start;
+      }
+
+      .panel {
+        background: #ffffff;
+        border: 1px solid #e8edf4;
+        border-radius: 18px;
+        padding: 20px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+        margin-bottom: 18px;
+      }
+
+      .panel h3 {
+        font-size: 24px;
+        font-weight: 800;
+        margin-bottom: 16px;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #64748b;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 700;
+      }
+
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        width: 100%;
+        border: 1px solid #dbe2ea;
+        background: #fff;
+        border-radius: 12px;
+        padding: 14px 14px;
+        font-size: 14px;
+        color: #1f2937;
+        outline: none;
+      }
+
+      .form-group textarea {
+        min-height: 120px;
+        resize: vertical;
+      }
+
+      .full {
+        grid-column: 1 / -1;
+      }
+
+      .error-box {
+        background: #fff1f1;
+        border: 1px solid #efc4c4;
+        color: #b42318;
+        border-radius: 12px;
+        padding: 14px 16px;
+        margin-bottom: 16px;
+      }
+
+      .croquis-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 12px;
+        margin-top: 16px;
+      }
+
+      .room-seat {
+        min-height: 100px;
+        border-radius: 14px;
+        border: 1px solid #d9dde4;
+        background: #ffffff;
+        padding: 12px 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        cursor: pointer;
+        transition: 0.25s ease;
+        color: #1f2937;
+      }
+
+      .room-seat:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(20, 30, 45, 0.06);
+        border-color: #2563eb;
+      }
+
+      .room-seat.ocupada,
+      .room-seat:disabled {
+        background: #e6e8ec;
+        border-color: #d6d9df;
+        color: #8b9099;
+        cursor: not-allowed;
+        box-shadow: none;
+        transform: none;
+      }
+
+      .room-seat.premium {
+        background: #fff9ea;
+        border-color: #e8d59a;
+      }
+
+      .room-seat.is-selected {
+        background: #2563eb;
+        border-color: #2563eb;
+        color: white;
+      }
+
+      .room-seat-number {
+        font-weight: 800;
+        font-size: 16px;
+      }
+
+      .room-seat-name {
+        font-size: 12px;
+        text-align: center;
+      }
+
+      .room-seat-price {
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .summary p {
+        font-size: 14px;
+        color: #475569;
+        margin-bottom: 10px;
+      }
+
+      .summary strong {
+        color: #111827;
+      }
+
+      .check-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 16px;
+        margin-bottom: 18px;
+      }
+
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        color: #64748b;
+        font-size: 12px;
+        margin-top: 10px;
+      }
+
+      .legend span {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 4px;
+        display: inline-block;
+      }
+
+      .dot.available {
+        background: white;
+        border: 1px solid #d6d9df;
+      }
+      .dot.selected {
+        background: #2563eb;
+      }
+      .dot.occupied {
+        background: #d4d7dc;
+      }
+      .dot.premium {
+        background: #f3e2a9;
+      }
+
+      @media (max-width: 1200px) {
+        .croquis-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      @media (max-width: 950px) {
+        .shell {
+          grid-template-columns: 1fr;
+        }
+        .sidebar {
+          border-right: none;
+          border-bottom: 1px solid #e5eaf2;
+        }
+        .layout {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .croquis-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+        .hero h2 {
+          font-size: 30px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidebar">
+        <div>
+          <div class="brand">
+            <h1>Plaza Delfino</h1>
+            <p>Reservación Administrativa</p>
+          </div>
+
+          <nav class="nav">
+            {% if session.get('admin_rol') == 'gerente' %}
+            <a href="{{ url_for('admin_dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('admin_clients') }}">Clients</a>
+            {% else %}
+            <a href="{{ url_for('admin_recepcion') }}">Recepción</a>
+            {% endif %}
+            <a href="{{ url_for('admin_bookings') }}">Bookings</a>
+            <a href="{{ url_for('admin_nueva_reservacion') }}" class="active"
+              >Nueva reservación</a
+            >
+            <a href="{{ url_for('admin_logout') }}">Cerrar sesión</a>
+          </nav>
+        </div>
+
+        <div>
+          <button type="submit" form="adminReservationForm" class="btn-primary">
+            Guardar reservación
+          </button>
+        </div>
+      </aside>
+
+      <main class="main">
+        <div class="hero">
+          <div>
+            <h2>Nueva reservación administrativa</h2>
+            <p>
+              Esta pantalla es exclusiva para gerente y recepcionista. No usa el
+              flujo del cliente.
+            </p>
+          </div>
+
+          <a href="{{ url_for('admin_bookings') }}" class="btn-light"
+            >Volver a bookings</a
+          >
+        </div>
+
+        {% if error %}
+        <div class="error-box">{{ error }}</div>
+        {% endif %}
+
+        <form method="post" id="adminReservationForm" class="layout">
+          <div>
+            <section class="panel">
+              <h3>Datos del cliente</h3>
+
+              <div class="form-grid">
+                <div class="form-group full">
+                  <label>Nombre completo</label>
+                  <input
+                    type="text"
+                    name="nombre"
+                    value="{{ datos.nombre if datos else '' }}"
+                    required
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label>Correo</label>
+                  <input
+                    type="email"
+                    name="email"
+                    value="{{ datos.email if datos else '' }}"
+                    required
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label>Teléfono</label>
+                  <input
+                    type="text"
+                    name="telefono"
+                    value="{{ datos.telefono if datos else '' }}"
+                    required
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label>Documento de identidad</label>
+                  <input
+                    type="text"
+                    name="documento_identidad"
+                    value="{{ datos.documento_identidad if datos else '' }}"
+                  />
+                </div>
+
+                <div class="form-group full">
+                  <label>Dirección</label>
+                  <input
+                    type="text"
+                    name="direccion"
+                    value="{{ datos.direccion if datos else '' }}"
+                  />
+                </div>
+
+                <div class="form-group full">
+                  <label>Empresa (opcional)</label>
+
+                  <select name="id_empresa">
+                    <option value="">Sin empresa</option>
+
+                    {% for empresa in empresas %}
+                    <option
+                      value="{{ empresa.id_empresa }}"
+                      {{
+                      'selected'
+                      if datos and datos.id_empresa|string == empresa.id_empresa|string
+                      else ''
+                      }}
+                    >
+                      {{ empresa.nombre_empresa }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+            </section>
+
+            <section class="panel">
+              <h3>Datos de la estancia</h3>
+
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Fecha de entrada</label>
+                  <input
+                    type="date"
+                    id="fecha_entrada"
+                    name="fecha_entrada"
+                    value="{{ datos.fecha_entrada if datos else '' }}"
+                    required
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label>Fecha de salida</label>
+                  <input
+                    type="date"
+                    id="fecha_salida"
+                    name="fecha_salida"
+                    value="{{ datos.fecha_salida if datos else '' }}"
+                    required
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label>Número de personas</label>
+
+                  <select name="personas" id="personas">
+                    <option
+                      value="1"
+                      {{ 'selected' if datos and datos.personas == '1' else '' }}
+                    >
+                      1 persona
+                    </option>
+
+                    <option
+                      value="2"
+                      {{ 'selected' if not datos or datos.personas == '2' else '' }}
+                    >
+                      2 personas
+                    </option>
+
+                    <option
+                      value="3"
+                      {{ 'selected' if datos and datos.personas == '3' else '' }}
+                    >
+                      3 personas
+                    </option>
+
+                    <option
+                      value="4"
+                      {{ 'selected' if datos and datos.personas == '4' else '' }}
+                    >
+                      4 personas
+                    </option>
+
+                    <option
+                      value="5"
+                      {{ 'selected' if datos and datos.personas == '5' else '' }}
+                    >
+                      5 personas
+                    </option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Tipo de estancia</label>
+
+                  <select name="tipo_estancia" id="tipo_estancia">
+                    <option
+                      value="Suite Vista Mar"
+                      {{
+                      'selected'
+                      if datos and datos.tipo_estancia == 'Suite Vista Mar'
+                      else ''
+                      }}
+                    >
+                      Suite Vista Mar
+                    </option>
+
+                    <option
+                      value="Junior Suite"
+                      {{
+                      'selected'
+                      if datos and datos.tipo_estancia == 'Junior Suite'
+                      else ''
+                      }}
+                    >
+                      Junior Suite
+                    </option>
+
+                    <option
+                      value="Deluxe Garden"
+                      {{
+                      'selected'
+                      if datos and datos.tipo_estancia == 'Deluxe Garden'
+                      else ''
+                      }}
+                    >
+                      Deluxe Garden
+                    </option>
+                  </select>
+                </div>
+
+                <div class="form-group full">
+                  <label>Comentarios</label>
+                  <textarea name="comentarios">
+{{ datos.comentarios if datos else '' }}</textarea
+                  >
+                </div>
+              </div>
+
+              <div class="check-row">
+                <input
+                  type="checkbox"
+                  id="checkin_directo"
+                  name="checkin_directo"
+                  {{
+                  'checked'
+                  if datos and datos.checkin_directo == 'on'
+                  else ''
+                  }}
+                />
+
+                <label for="checkin_directo">
+                  Realizar check-in directo al guardar
+                </label>
+              </div>
+            </section>
+
+            <section class="panel">
+              <h3>Selección de habitación</h3>
+
+              <input
+                type="hidden"
+                name="habitacion_id"
+                id="habitacion_id"
+                value="{{ datos.habitacion_id if datos else '' }}"
+              />
+
+              <div class="legend">
+                <span><i class="dot available"></i> Disponible</span>
+                <span><i class="dot selected"></i> Seleccionada</span>
+                <span><i class="dot occupied"></i> Ocupada</span>
+                <span><i class="dot premium"></i> Premium</span>
+              </div>
+
+              <div class="croquis-grid">
+                {% for habitacion in habitaciones %}
+
+                <button
+                  type="button"
+                  class="room-seat {{ habitacion.estado }}"
+                  data-id="{{ habitacion.numero }}"
+                  data-name="{{ habitacion.nombre }}"
+                  data-type="{{ habitacion.tipo }}"
+                  data-price="{{ habitacion.precio }}"
+                  {{ 'disabled' if habitacion.estado == 'ocupada' else '' }}
+                >
+                  <span class="room-seat-number">
+                    {{ habitacion.numero }}
+                  </span>
+
+                  <span class="room-seat-name">
+                    {{ habitacion.nombre }}
+                  </span>
+
+                  <span class="room-seat-price">
+                    ${{ habitacion.precio }}
+                  </span>
+                </button>
+
+                {% endfor %}
+              </div>
+            </section>
+          </div>
+
+          <aside>
+            <section class="panel summary">
+              <h3>Resumen</h3>
+              <p>
+                <strong>Habitación:</strong>
+                <span id="summary_room">Sin seleccionar</span>
+              </p>
+              <p><strong>Tipo:</strong> <span id="summary_type">---</span></p>
+              <p>
+                <strong>Precio por noche:</strong>
+                <span id="summary_price">---</span>
+              </p>
+              <p><strong>Noches:</strong> <span id="summary_nights">1</span></p>
+              <p>
+                <strong>Personas:</strong>
+                <span id="summary_people"
+                  >{{ datos.personas if datos else '2' }}</span
+                >
+              </p>
+              <p>
+                <strong>Total estimado:</strong>
+                <span id="summary_total">---</span>
+              </p>
+              <hr>
+              <h3>Pago</h3>
+              <div class="form-grid">
+                <div class="form-group full">
+                  <label>Titular</label>
+                  <input type="text" name="titular">
+                </div>
+                <div class="form-group full">
+                  <label>Número de tarjeta</label>
+                  <input type="text" name="tarjeta">
+                </div>
+                <div class="form-group">
+                  <label>Vencimiento</label>
+                  <input type="text" name="vencimiento">
+                </div>
+                <div class="form-group">
+                  <label>CVV</label>
+                  <input type="text" name="cvv">
+                </div>
+              </div>
+              <div style="margin-top: 20px">
+                <button type="submit" class="btn-primary">
+                  Guardar reservación
+                </button>
+              </div>
+            </section>
+          </aside>
+        </form>
+      </main>
+    </div>
+
+    <script>
+      const roomButtons = document.querySelectorAll(
+        ".room-seat:not([disabled])",
+      );
+      const hiddenRoomInput = document.getElementById("habitacion_id");
+
+      const fechaEntrada = document.getElementById("fecha_entrada");
+      const fechaSalida = document.getElementById("fecha_salida");
+      const personas = document.getElementById("personas");
+
+      const summaryRoom = document.getElementById("summary_room");
+      const summaryType = document.getElementById("summary_type");
+      const summaryPrice = document.getElementById("summary_price");
+      const summaryNights = document.getElementById("summary_nights");
+      const summaryPeople = document.getElementById("summary_people");
+      const summaryTotal = document.getElementById("summary_total");
+
+      function getSelectedRoomButton() {
+        return document.querySelector(".room-seat.is-selected");
+      }
+
+      function calculateNights() {
+        if (!fechaEntrada.value || !fechaSalida.value) return 1;
+        const start = new Date(fechaEntrada.value);
+        const end = new Date(fechaSalida.value);
+        const diff = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+        return diff > 0 ? diff : 1;
+      }
+
+      function updateSummary() {
+        const selected = getSelectedRoomButton();
+        const nights = calculateNights();
+        const people = parseInt(personas.value || "2", 10);
+
+        summaryNights.textContent = nights;
+        summaryPeople.textContent = people;
+
+        if (!selected) {
+          summaryRoom.textContent = "Sin seleccionar";
+          summaryType.textContent = "---";
+          summaryPrice.textContent = "---";
+          summaryTotal.textContent = "---";
+          return;
+        }
+
+        const roomId = selected.dataset.id;
+        const roomName = selected.dataset.name;
+        const roomType = selected.dataset.type;
+        const roomPrice = parseInt(selected.dataset.price, 10);
+
+        let total = roomPrice * nights;
+        if (people > 2) {
+          total += (people - 2) * 45 * nights;
+        }
+
+        summaryRoom.textContent = `${roomId} - ${roomName}`;
+        summaryType.textContent = roomType;
+        summaryPrice.textContent = `$${roomPrice}`;
+        summaryTotal.textContent = `$${total}`;
+      }
+
+      roomButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          roomButtons.forEach((item) => item.classList.remove("is-selected"));
+          button.classList.add("is-selected");
+          hiddenRoomInput.value = button.dataset.id;
+          updateSummary();
+        });
+      });
+
+      fechaEntrada.addEventListener("change", updateSummary);
+      fechaSalida.addEventListener("change", updateSummary);
+      personas.addEventListener("change", updateSummary);
+
+      const initialRoomId = hiddenRoomInput.value;
+      if (initialRoomId) {
+        const initialButton = document.querySelector(
+          `.room-seat[data-id="${initialRoomId}"]`,
+        );
+        if (initialButton && !initialButton.disabled) {
+          initialButton.classList.add("is-selected");
+        }
+      }
+
+      updateSummary();
+    </script>
+  </body>
+</html>

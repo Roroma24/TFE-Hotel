@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plaza Delfino | Administración</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: "Inter", sans-serif; background: #f5f7fb; color: #1f2937; }
+        a { text-decoration: none; color: inherit; }
+
+        .shell { display: grid; grid-template-columns: 250px 1fr; min-height: 100vh; }
+
+        .sidebar { background: #f1f4f9; border-right: 1px solid #e5eaf2; padding: 26px 18px; display: flex; flex-direction: column; justify-content: space-between; }
+        .brand h1 { font-size: 26px; font-weight: 800; color: #2563eb; margin-bottom: 4px; }
+        .brand p { font-size: 11px; color: #8b98ab; letter-spacing: 1.6px; text-transform: uppercase; }
+        .nav { margin-top: 28px; display: grid; gap: 4px; }
+        .nav a { padding: 11px 14px; border-radius: 10px; color: #6b7280; font-size: 13px; font-weight: 500; }
+        .nav a.active, .nav a:hover { background: #fff; color: #2563eb; }
+        .nav .nav-section { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #b0b8c4; padding: 14px 14px 6px; }
+        .btn-sidebar { display: inline-flex; align-items: center; justify-content: center; width: 100%; padding: 13px 16px; background: #2563eb; color: #fff; border-radius: 10px; font-size: 13px; font-weight: 600; }
+
+        .main { padding: 24px; }
+        .hero { margin-bottom: 28px; }
+        .hero h2 { font-size: 34px; font-weight: 800; margin-bottom: 4px; }
+        .hero p { color: #8b98ab; font-size: 14px; }
+
+        .tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+        .tab { padding: 10px 20px; border-radius: 10px; background: #fff; border: 1px solid #e8edf4; color: #6b7280; font-size: 13px; font-weight: 600; cursor: pointer; transition: .2s; }
+        .tab.active { background: #2563eb; color: #fff; border-color: #2563eb; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .panel { background: #fff; border: 1px solid #e8edf4; border-radius: 18px; padding: 24px; box-shadow: 0 8px 24px rgba(15,23,42,0.04); margin-bottom: 20px; }
+        .panel-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .panel-head h3 { font-size: 18px; font-weight: 800; }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .form-group { display: flex; flex-direction: column; gap: 8px; }
+        .form-group.full { grid-column: 1 / -1; }
+        .form-group label { font-size: 12px; font-weight: 600; color: #374151; text-transform: uppercase; letter-spacing: 1px; }
+        .form-group input, .form-group select { padding: 11px 14px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 13px; outline: none; font-family: inherit; }
+        .form-group input:focus, .form-group select:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+
+        .btn { padding: 11px 20px; border-radius: 10px; font-size: 13px; font-weight: 700; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-blue { background: #2563eb; color: #fff; }
+        .btn-blue:hover { background: #1d4ed8; }
+        .btn-red { background: #fee2e2; color: #dc2626; }
+        .btn-green { background: #dcfce7; color: #16a34a; }
+        .btn-gray { background: #f1f5f9; color: #64748b; }
+
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 13px 10px; text-align: left; border-bottom: 1px solid #eef2f7; font-size: 13px; }
+        th { color: #94a3b8; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; font-weight: 700; }
+        tr:hover td { background: #f8faff; }
+
+        .badge { display: inline-flex; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+        .badge-gerente { background: #ede9fe; color: #7c3aed; }
+        .badge-recepcionista { background: #dbeafe; color: #1d4ed8; }
+        .badge-cliente { background: #f0fdf4; color: #16a34a; }
+
+        .alert-ok { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; padding: 12px 16px; border-radius: 10px; margin-bottom: 18px; font-size: 13px; }
+        .alert-err { background: #fff1f2; border: 1px solid #fecdd3; color: #be123c; padding: 12px 16px; border-radius: 10px; margin-bottom: 18px; font-size: 13px; }
+
+        .price-tag { font-weight: 700; color: #2563eb; }
+
+        @media (max-width: 900px) {
+            .shell { grid-template-columns: 1fr; }
+            .form-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="shell">
+    <aside class="sidebar">
+        <div>
+            <div class="brand">
+                <h1>Plaza Delfino</h1>
+                <p>Gerencia</p>
+            </div>
+            <nav class="nav">
+                <span class="nav-section">Principal</span>
+                <a href="{{ url_for('admin_dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('admin_bookings') }}">Reservas</a>
+                <a href="{{ url_for('admin_clients') }}">Clientes</a>
+                <a href="{{ url_for('admin_facturas') }}">Facturación</a>
+                <span class="nav-section">Configuración</span>
+                <a href="{{ url_for('admin_gerente') }}" class="active">Administración</a>
+                <a href="{{ url_for('admin_logout') }}">Cerrar sesión</a>
+            </nav>
+        </div>
+        <a href="{{ url_for('admin_nueva_reservacion') }}" class="btn-sidebar">+ Nueva reservación</a>
+    </aside>
+
+    <main class="main">
+        <div class="hero">
+            <h2>Administración del Sistema</h2>
+            <p>Gestiona personal, habitaciones, precios y empresas asociadas.</p>
+        </div>
+
+        <!-- TABS -->
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('personal', this)">Personal</button>
+            <button class="tab" onclick="showTab('habitaciones', this)">Habitaciones</button>
+            <button class="tab" onclick="showTab('precios', this)">Precios</button>
+            <button class="tab" onclick="showTab('empresas', this)">Empresas</button>
+        </div>
+
+        <!-- ========================= TAB: PERSONAL ========================= -->
+        <div id="tab-personal" class="tab-content active">
+
+            {% if msg_personal %}<div class="alert-ok">{{ msg_personal }}</div>{% endif %}
+            {% if err_personal %}<div class="alert-err">{{ err_personal }}</div>{% endif %}
+
+            <div class="panel">
+                <div class="panel-head">
+                    <h3>Crear cuenta de personal</h3>
+                </div>
+                <form method="post" action="{{ url_for('admin_gerente') }}?tab=personal&accion=crear_personal">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Nombre</label>
+                            <input type="text" name="nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Apellido</label>
+                            <input type="text" name="apellido">
+                        </div>
+                        <div class="form-group">
+                            <label>Usuario</label>
+                            <input type="text" name="usuario" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Correo</label>
+                            <input type="email" name="correo" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Contraseña</label>
+                            <input type="password" name="password" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Rol</label>
+                            <select name="id_rol">
+                                <option value="2">Recepcionista</option>
+                                <option value="3">Gerente</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-blue" style="margin-top:16px;">Crear cuenta</button>
+                </form>
+            </div>
+
+            <div class="panel">
+                <div class="panel-head"><h3>Personal registrado</h3></div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th><th>Nombre</th><th>Usuario</th><th>Correo</th><th>Rol</th><th>Estado</th><th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in personal %}
+                        <tr>
+                            <td>{{ u.id_usuario }}</td>
+                            <td>{{ u.nombre }} {{ u.apellido }}</td>
+                            <td>{{ u.usuario }}</td>
+                            <td>{{ u.correo }}</td>
+                            <td><span class="badge badge-{{ u.nombre_rol }}">{{ u.nombre_rol }}</span></td>
+                            <td>{{ u.estado }}</td>
+                            <td style="display:flex;gap:6px;flex-wrap:wrap;">
+                                {% if u.estado == 'activo' %}
+                                <a href="{{ url_for('admin_gerente') }}?tab=personal&accion=desactivar&id={{ u.id_usuario }}"
+                                   class="btn btn-red" onclick="return confirm('¿Desactivar a {{ u.nombre }}?')">Desactivar</a>
+                                {% else %}
+                                <a href="{{ url_for('admin_gerente') }}?tab=personal&accion=activar&id={{ u.id_usuario }}"
+                                   class="btn btn-green">Activar</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ========================= TAB: HABITACIONES ========================= -->
+        <div id="tab-habitaciones" class="tab-content">
+
+            {% if msg_hab %}<div class="alert-ok">{{ msg_hab }}</div>{% endif %}
+            {% if err_hab %}<div class="alert-err">{{ err_hab }}</div>{% endif %}
+
+            <div class="panel">
+                <div class="panel-head"><h3>Dar de alta habitación</h3></div>
+                <form method="post" action="{{ url_for('admin_gerente') }}?tab=habitaciones&accion=crear_hab">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Número de habitación</label>
+                            <input type="text" name="numero" placeholder="Ej. 201" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Nombre / Observaciones</label>
+                            <input type="text" name="observaciones" placeholder="Ej. Delfín, Coral...">
+                        </div>
+                        <div class="form-group">
+                            <label>Piso</label>
+                            <input type="text" name="piso" placeholder="1, 2, 3...">
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo de habitación</label>
+                            <select name="id_tipo_habitacion">
+                                {% for tipo in tipos_habitacion %}
+                                <option value="{{ tipo.id_tipo_habitacion }}">{{ tipo.nombre_tipo }} — ${{ tipo.precio_base }}/noche</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-blue" style="margin-top:16px;">Agregar habitación</button>
+                </form>
+            </div>
+
+            <div class="panel">
+                <div class="panel-head"><h3>Habitaciones registradas</h3></div>
+                <table>
+                    <thead>
+                        <tr><th>Número</th><th>Nombre</th><th>Tipo</th><th>Piso</th><th>Precio/noche</th><th>Estado</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for h in habitaciones %}
+                        <tr>
+                            <td><strong>{{ h.numero }}</strong></td>
+                            <td>{{ h.observaciones or '—' }}</td>
+                            <td>{{ h.nombre_tipo }}</td>
+                            <td>{{ h.piso }}</td>
+                            <td class="price-tag">${{ h.precio_base }}</td>
+                            <td>{{ h.estado }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ========================= TAB: PRECIOS ========================= -->
+        <div id="tab-precios" class="tab-content">
+
+            {% if msg_precio %}<div class="alert-ok">{{ msg_precio }}</div>{% endif %}
+            {% if err_precio %}<div class="alert-err">{{ err_precio }}</div>{% endif %}
+
+            <div class="panel">
+                <div class="panel-head"><h3>Tipos de habitación y precios base</h3></div>
+                <table>
+                    <thead>
+                        <tr><th>ID</th><th>Tipo</th><th>Descripción</th><th>Capacidad</th><th>Precio actual/noche</th><th>Nuevo precio</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for tipo in tipos_habitacion %}
+                        <tr>
+                            <td>{{ tipo.id_tipo_habitacion }}</td>
+                            <td><strong>{{ tipo.nombre_tipo }}</strong></td>
+                            <td>{{ tipo.descripcion }}</td>
+                            <td>{{ tipo.capacidad }} pers.</td>
+                            <td class="price-tag">${{ tipo.precio_base }}</td>
+                            <td>
+                                <form method="post" action="{{ url_for('admin_gerente') }}?tab=precios&accion=actualizar_precio" style="display:flex;gap:8px;align-items:center;">
+                                    <input type="hidden" name="id_tipo" value="{{ tipo.id_tipo_habitacion }}">
+                                    <input type="number" name="nuevo_precio" placeholder="{{ tipo.precio_base }}" step="0.01" min="1" style="width:110px;padding:8px 10px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;">
+                                    <button type="submit" class="btn btn-blue">Guardar</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="panel">
+                <div class="panel-head"><h3>Crear nuevo tipo de habitación</h3></div>
+                <form method="post" action="{{ url_for('admin_gerente') }}?tab=precios&accion=crear_tipo">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Nombre del tipo</label>
+                            <input type="text" name="nombre_tipo" placeholder="Ej. Penthouse" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Precio base / noche ($)</label>
+                            <input type="number" name="precio_base" step="0.01" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Capacidad (personas)</label>
+                            <input type="number" name="capacidad" min="1" max="10" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Descripción</label>
+                            <input type="text" name="descripcion" placeholder="Descripción breve">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-blue" style="margin-top:16px;">Crear tipo</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- ========================= TAB: EMPRESAS ========================= -->
+        <div id="tab-empresas" class="tab-content">
+
+            {% if msg_empresa %}<div class="alert-ok">{{ msg_empresa }}</div>{% endif %}
+            {% if err_empresa %}<div class="alert-err">{{ err_empresa }}</div>{% endif %}
+
+            <div class="panel">
+                <div class="panel-head"><h3>Registrar empresa asociada</h3></div>
+                <form method="post" action="{{ url_for('admin_gerente') }}?tab=empresas&accion=crear_empresa">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Nombre de la empresa</label>
+                            <input type="text" name="nombre_empresa" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Correo de contacto</label>
+                            <input type="email" name="correo">
+                        </div>
+                        <div class="form-group">
+                            <label>Teléfono</label>
+                            <input type="text" name="telefono">
+                        </div>
+                        <div class="form-group">
+                            <label>Descuento preferencial (%)</label>
+                            <input type="number" name="descuento" min="0" max="100" step="0.01" placeholder="Ej. 10">
+                        </div>
+                        <div class="form-group full">
+                            <label>Dirección</label>
+                            <input type="text" name="direccion">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-blue" style="margin-top:16px;">Registrar empresa</button>
+                </form>
+            </div>
+
+            <div class="panel">
+                <div class="panel-head"><h3>Empresas registradas</h3></div>
+                <table>
+                    <thead>
+                        <tr><th>ID</th><th>Empresa</th><th>Correo</th><th>Teléfono</th><th>Descuento</th><th>Dirección</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for e in empresas %}
+                        <tr>
+                            <td>{{ e.id_empresa }}</td>
+                            <td><strong>{{ e.nombre_empresa }}</strong></td>
+                            <td>{{ e.correo or '—' }}</td>
+                            <td>{{ e.telefono or '—' }}</td>
+                            <td class="price-tag">{{ e.descuento or 0 }}%</td>
+                            <td>{{ e.direccion or '—' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script>
+function showTab(name, btn) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    btn.classList.add('active');
+}
+
+// Restaurar tab activo si viene de un redirect con ?tab=
+const urlParams = new URLSearchParams(window.location.search);
+const tabParam = urlParams.get('tab');
+if (tabParam) {
+    const btn = [...document.querySelectorAll('.tab')].find(b => b.getAttribute('onclick').includes("'" + tabParam + "'"));
+    if (btn) showTab(tabParam, btn);
+}
+</script>
+</body>
+</html>

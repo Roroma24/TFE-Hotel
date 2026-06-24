@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Plaza Delfino | Resumen de reserva{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="page-intro">
+            <p class="eyebrow">Confirmación previa</p>
+            <h1>Resumen de la reserva</h1>
+            <p>Revise los datos de su estancia antes de continuar al cobro.</p>
+        </div>
+
+        <div class="summary-grid">
+            <div class="panel summary-card">
+                <h2>Detalles de la estancia</h2>
+
+                <ul>
+                    <li><span>Habitación</span><strong>{{ reserva.habitacion.nombre }}</strong></li>
+                    <li><span>Tipo</span><strong>{{ reserva.habitacion.tipo }}</strong></li>
+                    <li><span>Entrada</span><strong>{{ reserva.fecha_entrada }}</strong></li>
+                    <li><span>Salida</span><strong>{{ reserva.fecha_salida }}</strong></li>
+                    <li><span>Huéspedes</span><strong>{{ reserva.huespedes }}</strong></li>
+                    <li><span>Noches</span><strong>{{ reserva.noches }}</strong></li>
+                    <li class="total-row"><span>Total</span><strong>${{ reserva.subtotal }}</strong></li>
+                </ul>
+
+                <br>
+                <a href="{{ url_for('cobro') }}" class="btn btn-primary btn-block">Continuar al cobro</a>
+            </div>
+
+            <div class="side-stack">
+                <div class="panel summary-card">
+                    <h3>Datos del huésped</h3>
+
+                    {% if usuario %}
+                        <ul>
+                            <li><span>Nombre</span><strong>{{ usuario.nombre }}</strong></li>
+                            <li><span>Correo</span><strong>{{ usuario.email }}</strong></li>
+                        </ul>
+                    {% else %}
+                        <div class="note-box">
+                            No has iniciado sesión. La reserva se registrará como invitado temporal.
+                        </div>
+                        <a href="{{ url_for('login') }}" class="btn btn-outline btn-block">Iniciar sesión</a>
+                    {% endif %}
+                </div>
+
+                <div class="panel">
+                    <h3>Observación</h3>
+                    <p class="text-muted">
+                        En el siguiente paso capturaremos los datos del cobro para confirmar la reserva.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,313 @@
+{% extends 'base.html' %}
+{% block title %}Plaza Delfino | Selección de habitación{% endblock %}
+
+{% block content %}
+<section class="booking-top">
+    <div class="container">
+        <h1>Seleccione su habitación</h1>
+        <p>
+            Defina los datos de su estancia y elija una de nuestras 10 habitaciones
+            desde un croquis visual tipo selección de asiento.
+        </p>
+    </div>
+</section>
+
+<section>
+    <div class="container">
+        {% if error %}
+            <div class="form-error-box">{{ error }}</div>
+        {% endif %}
+
+        <form method="post" class="room-selection-layout">
+            <div class="room-selection-main">
+                <div class="booking-panel">
+                    <p class="eyebrow">Tercer paso</p>
+                    <h2>Datos de la estancia</h2>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Fecha de entrada</label>
+                            <input
+                                type="date"
+                                name="fecha_entrada"
+                                id="fecha_entrada"
+                                value="{{ datos.fecha_entrada if datos else '' }}"
+                                required
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label>Fecha de salida</label>
+                            <input
+                                type="date"
+                                name="fecha_salida"
+                                id="fecha_salida"
+                                value="{{ datos.fecha_salida if datos else '' }}"
+                                required
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label>Número de personas</label>
+                            <select name="personas" id="personas" required>
+                                <option value="1" {% if datos and datos.personas == '1' %}selected{% endif %}>1 persona</option>
+                                <option value="2" {% if not datos or datos.personas == '2' %}selected{% endif %}>2 personas</option>
+                                <option value="3" {% if datos and datos.personas == '3' %}selected{% endif %}>3 personas</option>
+                                <option value="4" {% if datos and datos.personas == '4' %}selected{% endif %}>4 personas</option>
+                                <option value="5" {% if datos and datos.personas == '5' %}selected{% endif %}>5 personas</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Tipo de estancia</label>
+                            <select name="tipo_estancia" id="tipo_estancia" required>
+                                <option value="Suite Vista Mar" {% if datos and datos.tipo_estancia == 'Suite Vista Mar' %}selected{% endif %}>Suite Vista Mar</option>
+                                <option value="Deluxe Garden" {% if datos and datos.tipo_estancia == 'Deluxe Garden' %}selected{% endif %}>Deluxe Garden</option>
+                                <option value="Junior Suite" {% if datos and datos.tipo_estancia == 'Junior Suite' %}selected{% endif %}>Junior Suite</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label>Comentarios especiales</label>
+                            <textarea
+                                name="comentarios"
+                                placeholder="Preferencias, horario de llegada, peticiones especiales..."
+                            >{{ datos.comentarios if datos else '' }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="booking-panel croquis-panel">
+                    <div class="croquis-head">
+                        <div>
+                            <p class="eyebrow">Croquis de habitaciones</p>
+                            <h2>Elija desde el plano</h2>
+                        </div>
+
+                        <div class="room-legend">
+                            <span><i class="legend-dot available"></i> Disponible</span>
+                            <span><i class="legend-dot selected"></i> Seleccionada</span>
+                            <span><i class="legend-dot occupied"></i> Ocupada</span>
+                            <span><i class="legend-dot premium"></i> Premium</span>
+                        </div>
+                    </div>
+
+                    <input
+                        type="hidden"
+                        name="habitacion_id"
+                        id="habitacion_id"
+                        value="{{ datos.habitacion.id if datos and datos.habitacion else '' }}"
+                    >
+
+                    <div class="hotel-croquis">
+                        <div class="croquis-row">
+                            {% for habitacion in habitaciones[:5] %}
+                                <button
+                                    type="button"
+                                    class="room-seat {{ habitacion.estado }}"
+                                    data-id="{{ habitacion.id }}"
+                                    data-name="{{ habitacion.nombre }}"
+                                    data-type="{{ habitacion.tipo }}"
+                                    data-price="{{ habitacion.precio }}"
+                                    {% if habitacion.estado == 'ocupada' %}disabled{% endif %}
+                                >
+                                    <span class="room-seat-number">{{ habitacion.id }}</span>
+                                    <span class="room-seat-name">{{ habitacion.nombre }}</span>
+                                    <span class="room-seat-price">${{ habitacion.precio }}</span>
+                                </button>
+                            {% endfor %}
+                        </div>
+
+                        <div class="croquis-hall">Pasillo central</div>
+
+                        <div class="croquis-row">
+                            {% for habitacion in habitaciones[5:] %}
+                                <button
+                                    type="button"
+                                    class="room-seat {{ habitacion.estado }}"
+                                    data-id="{{ habitacion.id }}"
+                                    data-name="{{ habitacion.nombre }}"
+                                    data-type="{{ habitacion.tipo }}"
+                                    data-price="{{ habitacion.precio }}"
+                                    {% if habitacion.estado == 'ocupada' %}disabled{% endif %}
+                                >
+                                    <span class="room-seat-number">{{ habitacion.id }}</span>
+                                    <span class="room-seat-name">{{ habitacion.nombre }}</span>
+                                    <span class="room-seat-price">${{ habitacion.precio }}</span>
+                                </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="room-selection-side">
+                <div class="side-panel">
+                    <p class="eyebrow">Titular</p>
+                    <div class="feature-side">
+                        <div class="item">
+                            <h4>Nombre</h4>
+                            <p>{{ cliente.nombre }}</p>
+                        </div>
+
+                        <div class="item">
+                            <h4>Email</h4>
+                            <p>{{ cliente.email }}</p>
+                        </div>
+
+                        <div class="item">
+                            <h4>Teléfono</h4>
+                            <p>{{ cliente.telefono }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="side-panel booking-summary-panel">
+                    <p class="eyebrow">Resumen en tiempo real</p>
+
+                    <div class="feature-side">
+                        <div class="item">
+                            <h4>Habitación</h4>
+                            <p id="summary_room">
+                                {% if datos and datos.habitacion %}
+                                    {{ datos.habitacion.id }} - {{ datos.habitacion.nombre }}
+                                {% else %}
+                                    Sin seleccionar
+                                {% endif %}
+                            </p>
+                        </div>
+
+                        <div class="item">
+                            <h4>Tipo</h4>
+                            <p id="summary_type">
+                                {% if datos and datos.habitacion %}
+                                    {{ datos.habitacion.tipo }}
+                                {% else %}
+                                    ---
+                                {% endif %}
+                            </p>
+                        </div>
+
+                        <div class="item">
+                            <h4>Precio por noche</h4>
+                            <p id="summary_price">
+                                {% if datos and datos.habitacion %}
+                                    ${{ datos.habitacion.precio }}
+                                {% else %}
+                                    ---
+                                {% endif %}
+                            </p>
+                        </div>
+
+                        <div class="item">
+                            <h4>Noches estimadas</h4>
+                            <p id="summary_nights">1</p>
+                        </div>
+
+                        <div class="item">
+                            <h4>Personas</h4>
+                            <p id="summary_people">{{ datos.personas if datos else '2' }}</p>
+                        </div>
+
+                        <div class="item">
+                            <h4>Total estimado</h4>
+                            <p id="summary_total">---</p>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-main full-button">
+                        Continuar al cobro
+                    </button>
+                </div>
+            </aside>
+        </form>
+    </div>
+</section>
+
+<script>
+    const roomButtons = document.querySelectorAll('.room-seat:not([disabled])');
+    const hiddenRoomInput = document.getElementById('habitacion_id');
+
+    const fechaEntrada = document.getElementById('fecha_entrada');
+    const fechaSalida = document.getElementById('fecha_salida');
+    const personas = document.getElementById('personas');
+
+    const summaryRoom = document.getElementById('summary_room');
+    const summaryType = document.getElementById('summary_type');
+    const summaryPrice = document.getElementById('summary_price');
+    const summaryNights = document.getElementById('summary_nights');
+    const summaryPeople = document.getElementById('summary_people');
+    const summaryTotal = document.getElementById('summary_total');
+
+    function getSelectedRoomButton() {
+        return document.querySelector('.room-seat.is-selected');
+    }
+
+    function calculateNights() {
+        if (!fechaEntrada.value || !fechaSalida.value) {
+            return 1;
+        }
+
+        const start = new Date(fechaEntrada.value);
+        const end = new Date(fechaSalida.value);
+        const diff = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+
+        return diff > 0 ? diff : 1;
+    }
+
+    function updateSummary() {
+        const selected = getSelectedRoomButton();
+        const nights = calculateNights();
+        const people = parseInt(personas.value || "2", 10);
+
+        summaryNights.textContent = nights;
+        summaryPeople.textContent = people;
+
+        if (!selected) {
+            summaryRoom.textContent = 'Sin seleccionar';
+            summaryType.textContent = '---';
+            summaryPrice.textContent = '---';
+            summaryTotal.textContent = '---';
+            return;
+        }
+
+        const roomId = selected.dataset.id;
+        const roomName = selected.dataset.name;
+        const roomType = selected.dataset.type;
+        const roomPrice = parseInt(selected.dataset.price, 10);
+
+        let total = roomPrice * nights;
+        if (people > 2) {
+            total += (people - 2) * 45 * nights;
+        }
+
+        summaryRoom.textContent = `${roomId} - ${roomName}`;
+        summaryType.textContent = roomType;
+        summaryPrice.textContent = `$${roomPrice}`;
+        summaryTotal.textContent = `$${total}`;
+    }
+
+    roomButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            roomButtons.forEach(item => item.classList.remove('is-selected'));
+            button.classList.add('is-selected');
+            hiddenRoomInput.value = button.dataset.id;
+            updateSummary();
+        });
+    });
+
+    fechaEntrada.addEventListener('change', updateSummary);
+    fechaSalida.addEventListener('change', updateSummary);
+    personas.addEventListener('change', updateSummary);
+
+    const initialRoomId = hiddenRoomInput.value;
+    if (initialRoomId) {
+        const initialButton = document.querySelector(`.room-seat[data-id="${initialRoomId}"]`);
+        if (initialButton && !initialButton.disabled) {
+            initialButton.classList.add('is-selected');
+        }
+    }
+
+    updateSummary();
+</script>
+{% endblock %}

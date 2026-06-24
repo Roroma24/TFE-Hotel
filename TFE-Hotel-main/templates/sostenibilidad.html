@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% block title %}Plaza Delfino | Sostenibilidad{% endblock %}
+
+{% block content %}
+<section class="contact-hero">
+  <div class="hero-content">
+    <p class="eyebrow center">Compromiso ambiental</p>
+    <h1>Sostenibilidad</h1>
+    <div class="hero-line"></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    <div class="section-heading" style="margin-bottom: 54px;">
+      <p class="eyebrow center">Nuestro compromiso</p>
+      <h2>Un paraíso que cuida el planeta</h2>
+      <p style="color: var(--muted); max-width: 680px; margin: 0 auto; text-align: center; margin-top: 14px;">
+        En Plaza Delfino creemos que el lujo y la responsabilidad medioambiental no son opuestos.
+        Cada decisión que tomamos busca preservar la belleza natural que nos rodea para las generaciones futuras.
+      </p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 54px;">
+      {% set pilares = [
+        ("60%", "Energía solar", "Cubrimos el 60% de nuestro consumo eléctrico mediante paneles solares instalados en techos y áreas comunes."),
+        ("0", "Plásticos de un solo uso", "Hemos eliminado completamente el plástico desechable de nuestras instalaciones desde 2023."),
+        ("100%", "Proveedores locales", "Toda nuestra gastronomía proviene de productores locales certificados, reduciendo nuestra huella de carbono.")
+      ] %}
+      {% for cifra, titulo, desc in pilares %}
+      <div class="booking-panel" style="text-align: center;">
+        <strong style="font-family: var(--serif); font-size: 3.5rem; font-weight: 500; color: var(--blue); display: block; margin-bottom: 6px;">{{ cifra }}</strong>
+        <h3 style="font-family: var(--serif); font-size: 1.5rem; font-weight: 500; margin-bottom: 10px;">{{ titulo }}</h3>
+        <p style="color: var(--muted); font-size: 0.92rem;">{{ desc }}</p>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 34px; margin-bottom: 54px;">
+
+      <div class="booking-panel">
+        <p class="eyebrow">Medio ambiente</p>
+        <h2 style="font-family: var(--serif); font-size: 2.2rem; font-weight: 500; margin-bottom: 16px;">Programa Verde Delfino</h2>
+        <p style="color: var(--muted); margin-bottom: 16px;">
+          Nuestro programa de sostenibilidad abarca todas las áreas del resort con acciones concretas
+          y metas medibles auditadas anualmente por organismos independientes.
+        </p>
+        <ul style="color: var(--muted); padding-left: 20px; line-height: 2.2; font-size: 0.95rem;">
+          <li>Sistema de captación y reutilización de agua de lluvia</li>
+          <li>Jardines nativos que no requieren riego artificial</li>
+          <li>Programa de reciclaje con clasificación en 5 categorías</li>
+          <li>Iluminación LED de bajo consumo en todas las instalaciones</li>
+          <li>Flota de vehículos eléctricos para traslados internos</li>
+          <li>Compostaje de residuos orgánicos de cocina</li>
+        </ul>
+      </div>
+
+      <div class="booking-panel">
+        <p class="eyebrow">Comunidad</p>
+        <h2 style="font-family: var(--serif); font-size: 2.2rem; font-weight: 500; margin-bottom: 16px;">Impacto social</h2>
+        <p style="color: var(--muted); margin-bottom: 16px;">
+          La sostenibilidad va más allá del medio ambiente. Nos comprometemos con el bienestar
+          de las comunidades en las que operamos.
+        </p>
+        <ul style="color: var(--muted); padding-left: 20px; line-height: 2.2; font-size: 0.95rem;">
+          <li>El 85% de nuestro personal es originario de la región</li>
+          <li>Programa de becas universitarias para hijos de empleados</li>
+          <li>Colaboración con cooperativas pesqueras locales</li>
+          <li>Patrocinio de proyectos de conservación de arrecifes de coral</li>
+          <li>Programa de voluntariado para huéspedes: limpieza de playas</li>
+          <li>Alianza con ONG locales de protección de fauna marina</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="booking-panel" style="margin-bottom: 54px;">
+      <p class="eyebrow">Certificaciones</p>
+      <h2 style="font-family: var(--serif); font-size: 2.2rem; font-weight: 500; margin-bottom: 20px;">Reconocimientos y certificaciones</h2>
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;">
+        {% set certs = [
+          ("Green Globe", "Certificación internacional de sostenibilidad turística", "2021 — Presente"),
+          ("EarthCheck", "Programa de gestión ambiental para la industria hotelera", "2022 — Presente"),
+          ("Rainforest Alliance", "Certificación de turismo sostenible y comercio justo", "2023 — Presente"),
+          ("ISO 14001", "Sistema de gestión ambiental internacional", "2024 — Presente")
+        ] %}
+        {% for nombre, desc, periodo in certs %}
+        <div style="padding: 20px; border: 1px solid var(--line); border-radius: 12px; text-align: center;">
+          <strong style="display: block; font-family: var(--serif); font-size: 1.2rem; margin-bottom: 8px;">{{ nombre }}</strong>
+          <p style="color: var(--muted); font-size: 0.82rem; margin-bottom: 8px;">{{ desc }}</p>
+          <span style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: var(--gold);">{{ periodo }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div style="background: var(--blue); border-radius: 14px; padding: 54px; text-align: center; color: white; margin-bottom: 20px;">
+      <p style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 4px; opacity: 0.8; margin-bottom: 12px;">Únete al cambio</p>
+      <h2 style="font-family: var(--serif); font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 500; margin-bottom: 16px;">
+        Su estancia también marca la diferencia
+      </h2>
+      <p style="opacity: 0.88; max-width: 560px; margin: 0 auto 28px;">
+        Al hospedarse en Plaza Delfino, contribuye directamente a nuestros programas de conservación
+        y desarrollo comunitario. El 2% de cada reserva se destina al Fondo Verde Delfino.
+      </p>
+      <a href="{{ url_for('reservas') }}" class="btn-main" style="background: white; color: var(--blue);">
+        Reservar ahora
+      </a>
+    </div>
+
+  </div>
+</section>
+{% endblock %}

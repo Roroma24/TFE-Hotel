@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}Plaza Delfino | Confirmación{% endblock %}
+
+{% block content %}
+<section class="booking-top">
+    <div class="container">
+        <h1>Reserva confirmada</h1>
+        <p>
+            Su proceso se completó correctamente.
+        </p>
+    </div>
+</section>
+
+<section>
+    <div class="container confirmation-wrap">
+        <div class="confirmation-card">
+            <p class="eyebrow">Confirmación final</p>
+            <h2>Gracias por reservar con Plaza Delfino</h2>
+
+            <div class="confirmation-grid">
+                <div class="confirmation-item">
+                    <strong>Folio</strong>
+                    <span>{{ reserva.folio }}</span>
+                </div>
+
+                <div class="confirmation-item">
+                    <strong>Nombre</strong>
+                    <span>{{ reserva.cliente.nombre }}</span>
+                </div>
+
+                <div class="confirmation-item">
+                    <strong>Correo</strong>
+                    <span>{{ reserva.cliente.email }}</span>
+                </div>
+
+                <div class="confirmation-item">
+                    <strong>Entrada</strong>
+                    <span>{{ reserva.detalle.fecha_entrada }}</span>
+                </div>
+
+                <div class="confirmation-item">
+                    <strong>Salida</strong>
+                    <span>{{ reserva.detalle.fecha_salida }}</span>
+                </div>
+
+                <div class="confirmation-item">
+                    <strong>Personas</strong>
+                    <span>{{ reserva.detalle.personas }}</span>
+                </div>
+
+                <div class="confirmation-item">
+                    <strong>Estancia</strong>
+                    <span>{{ reserva.detalle.tipo_estancia }}</span>
+                </div>
+
+                <div class="confirmation-item">
+                    <strong>Total</strong>
+                    <span>${{ reserva.detalle.total }}</span>
+                </div>
+            </div>
+
+            <div class="confirmation-actions">
+                <a href="{{ url_for('index') }}" class="btn-main">Volver al inicio</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

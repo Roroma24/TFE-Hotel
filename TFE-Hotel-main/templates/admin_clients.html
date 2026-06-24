@@ -1,0 +1,663 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Plaza Delfino | Clientes</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: #f5f7fb;
+        color: #1f2937;
+      }
+
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .admin-shell {
+        display: grid;
+        grid-template-columns: 250px 1fr;
+        min-height: 100vh;
+      }
+
+      .admin-sidebar {
+        background: #f1f4f9;
+        border-right: 1px solid #e5eaf2;
+        padding: 26px 18px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      .brand-block h1 {
+        font-size: 28px;
+        font-weight: 800;
+        color: #2563eb;
+        line-height: 1;
+        margin-bottom: 6px;
+      }
+
+      .brand-block p {
+        font-size: 11px;
+        color: #8b98ab;
+        letter-spacing: 1.6px;
+        text-transform: uppercase;
+      }
+
+      .side-nav {
+        margin-top: 34px;
+        display: grid;
+        gap: 8px;
+      }
+
+      .side-nav a {
+        padding: 13px 14px;
+        border-radius: 12px;
+        color: #6b7280;
+        font-size: 14px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transition: 0.2s ease;
+      }
+
+      .side-nav a:hover,
+      .side-nav a.active {
+        background: #ffffff;
+        color: #2563eb;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+      }
+
+      .side-bottom {
+        margin-top: 30px;
+      }
+
+      .new-booking-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 14px 16px;
+        background: #2563eb;
+        color: #fff;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        box-shadow: 0 10px 24px rgba(37, 99, 235, 0.25);
+      }
+
+      .admin-main {
+        padding: 22px 26px 24px;
+      }
+
+      .topbar {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        margin-bottom: 24px;
+      }
+
+      .profile-chip {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #ffffff;
+        border: 1px solid #e7ebf2;
+        border-radius: 14px;
+        padding: 8px 10px 8px 14px;
+      }
+
+      .profile-chip small {
+        display: block;
+        font-size: 10px;
+        text-transform: uppercase;
+        color: #9aa4b2;
+        letter-spacing: 1.3px;
+      }
+
+      .profile-chip strong {
+        font-size: 13px;
+        color: #374151;
+      }
+
+      .profile-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+        display: grid;
+        place-items: center;
+        color: #1d4ed8;
+        font-weight: 700;
+      }
+
+      .hero-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 20px;
+        margin-bottom: 24px;
+      }
+
+      .hero-row h2 {
+        font-size: 40px;
+        font-weight: 800;
+        color: #18212f;
+        margin-bottom: 4px;
+      }
+
+      .hero-row p {
+        color: #8b98ab;
+        font-size: 14px;
+      }
+
+      .hero-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .btn-light,
+      .btn-primary {
+        border-radius: 12px;
+        padding: 11px 16px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+      }
+
+      .btn-light {
+        background: #ffffff;
+        border: 1px solid #e7ebf2;
+        color: #6b7280;
+      }
+
+      .btn-primary {
+        background: #2563eb;
+        color: #fff;
+        box-shadow: 0 10px 22px rgba(37, 99, 235, 0.18);
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 18px;
+      }
+
+      .stat-card {
+        background: #ffffff;
+        border: 1px solid #e8edf4;
+        border-radius: 18px;
+        padding: 18px 18px 16px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+      }
+
+      .stat-card span {
+        display: block;
+        font-size: 11px;
+        color: #9aa4b2;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 10px;
+      }
+
+      .stat-card strong {
+        display: block;
+        font-size: 34px;
+        color: #1f2937;
+        line-height: 1;
+        font-weight: 800;
+        margin-bottom: 8px;
+      }
+
+      .stat-card small {
+        font-size: 12px;
+        color: #64748b;
+        font-weight: 600;
+      }
+
+      .panel {
+        background: #ffffff;
+        border: 1px solid #e8edf4;
+        border-radius: 18px;
+        padding: 20px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+      }
+
+      .panel-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+
+      .panel-head h3 {
+        font-size: 24px;
+        font-weight: 800;
+        color: #1f2937;
+        margin-bottom: 4px;
+      }
+
+      .panel-head p {
+        font-size: 11px;
+        color: #9aa4b2;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 700;
+      }
+
+      .panel-link {
+        font-size: 11px;
+        color: #2563eb;
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 0.8px;
+      }
+
+      .clients-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-bottom: 18px;
+      }
+
+      .client-card {
+        background: #ffffff;
+        border: 1px solid #e8edf4;
+        border-radius: 18px;
+        padding: 18px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+      }
+
+      .client-top {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+
+      .client-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+        color: #1d4ed8;
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+        font-size: 16px;
+      }
+
+      .client-top strong {
+        display: block;
+        font-size: 15px;
+        color: #1f2937;
+        margin-bottom: 2px;
+      }
+
+      .client-top small {
+        color: #9aa4b2;
+        font-size: 12px;
+      }
+
+      .client-metrics {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 12px;
+      }
+
+      .metric-box {
+        background: #f8fafc;
+        border: 1px solid #eef2f7;
+        border-radius: 14px;
+        padding: 12px;
+      }
+
+      .metric-box span {
+        display: block;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: #94a3b8;
+        font-weight: 700;
+        margin-bottom: 6px;
+      }
+
+      .metric-box strong {
+        font-size: 16px;
+        color: #1f2937;
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 1100px;
+      }
+
+      th,
+      td {
+        padding: 14px 10px;
+        text-align: left;
+        border-bottom: 1px solid #eef2f7;
+        font-size: 13px;
+      }
+
+      th {
+        color: #94a3b8;
+        text-transform: uppercase;
+        font-size: 11px;
+        letter-spacing: 0.9px;
+        font-weight: 700;
+      }
+
+      td {
+        color: #374151;
+      }
+
+      .guest-cell strong {
+        display: block;
+        font-size: 13px;
+        color: #1f2937;
+        margin-bottom: 2px;
+      }
+
+      .guest-cell small {
+        color: #9aa4b2;
+        font-size: 11px;
+      }
+
+      .tier-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 7px 10px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      .tier-pill.gold {
+        background: #fff7e6;
+        color: #d97706;
+      }
+
+      .tier-pill.silver {
+        background: #eef2ff;
+        color: #4f46e5;
+      }
+
+      .tier-pill.basic {
+        background: #eff6ff;
+        color: #2563eb;
+      }
+
+      .empty-state {
+        padding: 28px 10px 6px;
+        color: #94a3b8;
+        font-size: 14px;
+      }
+
+      .footer-mini {
+        margin-top: 18px;
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        color: #a0a9b7;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+      }
+
+      @media (max-width: 1200px) {
+        .stats-grid,
+        .clients-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (max-width: 980px) {
+        .admin-shell {
+          grid-template-columns: 1fr;
+        }
+        .admin-sidebar {
+          border-right: none;
+          border-bottom: 1px solid #e5eaf2;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .hero-row,
+        .topbar {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        .stats-grid,
+        .clients-grid {
+          grid-template-columns: 1fr;
+        }
+        .hero-row h2 {
+          font-size: 30px;
+        }
+        .admin-main {
+          padding: 18px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="admin-shell">
+      <aside class="admin-sidebar">
+        <div>
+          <div class="brand-block">
+            <h1>Plaza Delfino</h1>
+            <p>Portal de Gestión</p>
+          </div>
+
+          <nav class="side-nav">
+            <a href="{{ url_for('admin_dashboard') }}">▣ Panel</a>
+            <a href="{{ url_for('admin_dashboard') }}#room-status"
+              >▤ Estado de Habitaciones</a
+            >
+            <a href="{{ url_for('admin_bookings') }}">◫ Reservas</a>
+            <a href="{{ url_for('admin_clients') }}" class="active"
+              >◎ Clientes</a
+            >
+            <a href="{{ url_for('admin_dashboard') }}#analytics">◌ Análisis</a>
+            <a href="{{ url_for('admin_logout') }}">↩ Cerrar Sesión</a>
+          </nav>
+        </div>
+
+        <div class="side-bottom">
+          <a
+            href="{{ url_for('admin_nueva_reservacion') }}"
+            class="new-booking-btn"
+            >＋ Nueva Reserva</a
+          >
+        </div>
+      </aside>
+
+      <main class="admin-main">
+        <div class="topbar">
+          <div class="profile-chip">
+            <div>
+              <small>Perfil del Gerente</small>
+              <strong>{{ session.get('admin_usuario', 'Admin') }}</strong>
+            </div>
+            <div class="profile-avatar">A</div>
+          </div>
+        </div>
+
+        <div class="hero-row">
+          <div>
+            <h2>Base de Datos de Clientes</h2>
+            <p>
+              Perfiles de huéspedes generados a partir de reservas confirmadas.
+            </p>
+          </div>
+
+          <div class="hero-actions">
+            <a href="{{ url_for('admin_dashboard') }}" class="btn-light"
+              >Volver al Panel</a
+            >
+            <a href="#" class="btn-primary">Registros de Clientes</a>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <article class="stat-card">
+            <span>Total de Clientes</span>
+            <strong>{{ total_clientes }}</strong>
+            <small>Perfiles únicos detectados</small>
+          </article>
+
+          <article class="stat-card">
+            <span>Clientes Activos</span>
+            <strong>{{ clientes_activos }}</strong>
+            <small>Clientes con al menos una reserva</small>
+          </article>
+
+          <article class="stat-card">
+            <span>Ingresos por Clientes</span>
+            <strong>${{ ingresos_clientes }}</strong>
+            <small>Ingreso total acumulado</small>
+          </article>
+
+          <article class="stat-card">
+            <span>Noches Reservadas</span>
+            <strong>{{ noches_clientes }}</strong>
+            <small>Noches vinculadas a clientes</small>
+          </article>
+        </div>
+
+        {% if clientes %}
+        <section class="clients-grid">
+          {% for cliente in clientes[:6] %} {% set iniciales =
+          cliente.nombre[:1].upper() %}
+          <article class="client-card">
+            <div class="client-top">
+              <div class="client-avatar">{{ iniciales }}</div>
+              <div>
+                <strong>{{ cliente.nombre }}</strong>
+                <small>{{ cliente.email }}</small>
+              </div>
+            </div>
+
+            <div class="client-metrics">
+              <div class="metric-box">
+                <span>Reservas</span>
+                <strong>{{ cliente.reservas }}</strong>
+              </div>
+              <div class="metric-box">
+                <span>Noches</span>
+                <strong>{{ cliente.noches }}</strong>
+              </div>
+              <div class="metric-box">
+                <span>Gastado</span>
+                <strong>${{ cliente.gastado }}</strong>
+              </div>
+              <div class="metric-box">
+                <span>Teléfono</span>
+                <strong>{{ cliente.telefono }}</strong>
+              </div>
+            </div>
+          </article>
+          {% endfor %}
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h3>Lista Completa de Clientes</h3>
+              <p>Perfiles detallados de huéspedes</p>
+            </div>
+            <a href="{{ url_for('admin_dashboard') }}" class="panel-link"
+              >Volver al resumen</a
+            >
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Huésped</th>
+                  <th>Teléfono</th>
+                  <th>Reservas</th>
+                  <th>Noches</th>
+                  <th>Total Gastado</th>
+                  <th>Última Habitación</th>
+                  <th>Fechas de Estancia</th>
+                  <th>Fidelidad</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for cliente in clientes %} {% if cliente.gastado >= 2000 %}
+                {% set tier_class = 'gold' %} {% set tier_text = 'Oro' %} {%
+                elif cliente.gastado >= 1000 %} {% set tier_class = 'silver' %}
+                {% set tier_text = 'Plata' %} {% else %} {% set tier_class =
+                'basic' %} {% set tier_text = 'Básico' %} {% endif %}
+                <tr>
+                  <td class="guest-cell">
+                    <strong>{{ cliente.nombre }}</strong>
+                    <small>{{ cliente.email }}</small>
+                  </td>
+                  <td>{{ cliente.telefono }}</td>
+                  <td>{{ cliente.reservas }}</td>
+                  <td>{{ cliente.noches }}</td>
+                  <td>${{ cliente.gastado }}</td>
+                  <td>{{ cliente.ultima_habitacion }}</td>
+                  <td>
+                    {{ cliente.ultima_entrada }} → {{ cliente.ultima_salida }}
+                  </td>
+                  <td>
+                    <span class="tier-pill {{ tier_class }}"
+                      >{{ tier_text }}</span
+                    >
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </section>
+        {% else %}
+        <section class="panel">
+          <div class="empty-state">
+            Todavía no hay clientes porque aún no existen reservas confirmadas.
+          </div>
+        </section>
+        {% endif %}
+
+        <div class="footer-mini">
+          <span>© 2024 Plaza Delfino Management Group</span>
+          <span>Módulo de Clientes Activo</span>
+          <span>Política de Privacidad</span>
+          <span>Portal de Soporte</span>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>
