@@ -221,6 +221,8 @@ class ServicioReservas:
             (hab_ctx.estado_actual(), reserva["id_habitacion"]),
         )
 
+        # Registrar checkout sin sumar consumos a la factura (cliente ya pagó la reserva)
+        # Los consumos se mantienen en la tabla SERVICIOS y se muestran/acomulan por separado.
         self._exec(
             """
             INSERT INTO CHECKOUT (id_reserva, id_usuario, fecha_hora_checkout, observaciones, cargos_adicionales)

@@ -1,83 +1,218 @@
-{% extends 'base.html' %}
-{% block title %}Plaza Delfino | Galería{% endblock %}
-
+{% extends 'base.html' %} {% block title %}Plaza Delfino | Galería{% endblock %}
 {% block content %}
 <section class="gallery-top">
-    <div class="container">
-        <p class="eyebrow center">Experiencia visual</p>
-        <h1 class="page-title center">Plaza Delfino</h1>
-        <p class="page-subtitle center">
-            Una curaduría de momentos, desde el amanecer sobre las aguas turquesas
-            hasta los detalles arquitectónicos que definen nuestro santuario en la isla.
-        </p>
+  <div class="container">
+    <p class="eyebrow center">Experiencia visual</p>
+    <h1 class="page-title center">Plaza Delfino</h1>
+    <p class="page-subtitle center">
+      Una curaduría de momentos, desde el amanecer sobre las aguas turquesas
+      hasta los detalles arquitectónicos que definen nuestro santuario en la
+      isla.
+    </p>
 
-        <div class="gallery-tabs">
-            <span class="active">Todo</span>
-            <a href="#">Arquitectura</a>
-            <a href="#">Naturaleza</a>
-            <a href="#">Gastronomía</a>
-            <a href="#">Wellness</a>
-        </div>
+    <div class="gallery-tabs">
+      <span class="active" data-filter="todo">Todo</span>
+      <span data-filter="arquitectura">Arquitectura</span>
+      <span data-filter="naturaleza">Naturaleza</span>
+      <span data-filter="gastronomia">Gastronomía</span>
+      <span data-filter="wellness">Wellness</span>
     </div>
+  </div>
 </section>
 
 <section>
-    <div class="container">
-        <div class="gallery-grid">
-            <div class="gallery-card">
-                <img src="{{ url_for('static', filename='images/infinity-pool.jpg') }}" alt="Horizonte">
-                <small>Exterior</small>
-                <h3>El Reflejo del Horizonte</h3>
-                <p>Nuestra piscina infinita se funde con el mar Caribe en un abrazo eterno.</p>
-            </div>
+  <div class="container">
+    <div class="gallery-grid" id="gallery-grid">
+      <div class="gallery-card" data-cat="naturaleza">
+        <img
+          src="{{ url_for('static', filename='images/infinity-pool.jpg') }}"
+          alt="Horizonte"
+        />
+        <small>Exterior</small>
+        <h3>El Reflejo del Horizonte</h3>
+        <p>
+          Nuestra piscina infinita se funde con el mar Caribe en un abrazo
+          eterno.
+        </p>
+      </div>
 
-            <div class="gallery-column">
-                <div class="gallery-card tall">
-                    <img src="{{ url_for('static', filename='images/about-hotel.jpg') }}" alt="Interior">
-                    <small>Interior</small>
-                    <h3>Esencia Minimalista</h3>
-                    <p>Materiales orgánicos que respiran la paz de la isla.</p>
-                </div>
-            </div>
+      <div class="gallery-column">
+        <div class="gallery-card tall" data-cat="arquitectura">
+          <img
+            src="{{ url_for('static', filename='images/about-hotel.jpg') }}"
+            alt="Interior"
+          />
+          <small>Interior</small>
+          <h3>Esencia Minimalista</h3>
+          <p>Materiales orgánicos que respiran la paz de la isla.</p>
         </div>
-
-        <div class="gallery-row-3">
-            <div class="gallery-card">
-                <img src="{{ url_for('static', filename='images/restaurant.jpg') }}" alt="Sabores">
-                <small>Gastronomía</small>
-                <h3>Sabores de la Isla</h3>
-            </div>
-
-            <div class="gallery-card">
-                <img src="{{ url_for('static', filename='images/hero-beach.jpg') }}" alt="Aguas">
-                <small>Naturaleza</small>
-                <h3>Aguas Turquesas</h3>
-            </div>
-
-            <div class="gallery-card">
-                <img src="{{ url_for('static', filename='images/spa.jpg') }}" alt="Veladas">
-                <small>Arquitectura</small>
-                <h3>Veladas de Plaza Delfino</h3>
-            </div>
-        </div>
-
-        <div class="video-banner">
-            <img src="{{ url_for('static', filename='images/hero-beach.jpg') }}" alt="Cortometraje">
-            <div class="play-center">
-                <div>
-                    <div class="video-button">▶</div>
-                    <div style="text-transform:uppercase;letter-spacing:4px;font-size:0.74rem;">Ver el cortometraje</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="cta-box">
-            <h2>Comience su historia con nosotros.</h2>
-            <div class="cta-actions">
-                <a href="{{ url_for('reservas') }}" class="btn-main">Ver disponibilidad</a>
-                <a href="#" class="btn-line">Descargar catálogo</a>
-            </div>
-        </div>
+      </div>
     </div>
+
+    <div class="gallery-row-3" id="gallery-row-3">
+      <div class="gallery-card" data-cat="gastronomia">
+        <img
+          src="{{ url_for('static', filename='images/restaurant.jpg') }}"
+          alt="Sabores"
+        />
+        <small>Gastronomía</small>
+        <h3>Sabores de la Isla</h3>
+      </div>
+
+      <div class="gallery-card" data-cat="naturaleza">
+        <img
+          src="{{ url_for('static', filename='images/hero-beach.jpg') }}"
+          alt="Aguas"
+        />
+        <small>Naturaleza</small>
+        <h3>Aguas Turquesas</h3>
+      </div>
+
+      <div class="gallery-card" data-cat="wellness">
+        <img
+          src="{{ url_for('static', filename='images/spa.jpg') }}"
+          alt="Wellness"
+        />
+        <small>Wellness</small>
+        <h3>Veladas de Plaza Delfino</h3>
+      </div>
+    </div>
+
+    <!-- Tarjetas extra por categoría (ocultas por defecto) -->
+    <div id="gallery-extra" style="display: none">
+      <!-- Arquitectura -->
+      <div class="gallery-card" data-cat="arquitectura">
+        <img
+          src="{{ url_for('static', filename='images/suite.jpg') }}"
+          alt="Suite"
+        />
+        <small>Arquitectura</small>
+        <h3>Diseño de Autor</h3>
+        <p>
+          Cada habitación es una obra de arquitectura contemporánea con alma
+          caribeña.
+        </p>
+      </div>
+
+      <!-- Naturaleza -->
+      <div class="gallery-card" data-cat="naturaleza">
+        <img
+          src="{{ url_for('static', filename='images/beach-view.jpg') }}"
+          alt="Playa"
+        />
+        <small>Naturaleza</small>
+        <h3>Orilla Interminable</h3>
+        <p>Kilómetros de arena blanca reservados para nuestros huéspedes.</p>
+      </div>
+
+      <!-- Gastronomía -->
+      <div class="gallery-card" data-cat="gastronomia">
+        <img
+          src="{{ url_for('static', filename='images/hero-beach.jpg') }}"
+          alt="Terraza"
+        />
+        <small>Gastronomía</small>
+        <h3>Cenas Frente al Mar</h3>
+        <p>
+          Experiencias gastronómicas bajo las estrellas con chefs galardonados.
+        </p>
+      </div>
+
+      <!-- Wellness -->
+      <div class="gallery-card" data-cat="wellness">
+        <img
+          src="{{ url_for('static', filename='images/infinity-pool.jpg') }}"
+          alt="Spa"
+        />
+        <small>Wellness</small>
+        <h3>Santuario del Alma</h3>
+        <p>Tratamientos inspirados en rituales ancestrales de la isla.</p>
+      </div>
+    </div>
+
+    <!-- Vista filtrada (se muestra al seleccionar una categoría) -->
+    <div
+      id="gallery-filtered"
+      class="gallery-row-3"
+      style="display: none; margin-top: 34px"
+    ></div>
+
+    <div class="video-banner">
+      <video
+        controls
+        poster="{{ url_for('static', filename='images/hero-beach.jpg') }}"
+        style="width: 100%; height: 100%; object-fit: cover"
+      >
+        <source
+          src="{{ url_for('static', filename='images/Plaza Delfino.mp4') }}"
+          type="video/mp4"
+        />
+      </video>
+    </div>
+
+    <div class="cta-box">
+      <h2>Comience su historia con nosotros.</h2>
+      <div class="cta-actions">
+        <a href="{{ url_for('reservas') }}" class="btn-main"
+          >Ver disponibilidad</a
+        >
+      </div>
+    </div>
+  </div>
 </section>
+
+<script>
+  const tabs = document.querySelectorAll(".gallery-tabs span");
+  const gridMain = document.getElementById("gallery-grid");
+  const row3 = document.getElementById("gallery-row-3");
+  const extraPool = document.getElementById("gallery-extra");
+  const filtered = document.getElementById("gallery-filtered");
+
+  // Todas las tarjetas disponibles (visibles + extra)
+  const allCards = () => [
+    ...document.querySelectorAll("#gallery-grid .gallery-card"),
+    ...document.querySelectorAll("#gallery-row-3 .gallery-card"),
+    ...document.querySelectorAll("#gallery-extra .gallery-card"),
+  ];
+
+  tabs.forEach((tab) => {
+    tab.style.cursor = "pointer";
+
+    tab.addEventListener("click", () => {
+      // Actualizar tab activo
+      tabs.forEach((t) => t.classList.remove("active"));
+      tab.classList.add("active");
+
+      const filter = tab.dataset.filter;
+
+      if (filter === "todo") {
+        // Restaurar vista original
+        gridMain.style.display = "";
+        row3.style.display = "";
+        filtered.style.display = "none";
+        filtered.innerHTML = "";
+      } else {
+        // Ocultar layout original
+        gridMain.style.display = "none";
+        row3.style.display = "none";
+
+        // Filtrar tarjetas por categoría
+        const coincidentes = allCards().filter((c) => c.dataset.cat === filter);
+
+        if (coincidentes.length === 0) {
+          filtered.innerHTML =
+            '<p style="color:var(--muted); grid-column:1/-1; padding: 40px 0;">Sin imágenes en esta categoría por el momento.</p>';
+          filtered.style.display = "grid";
+        } else {
+          filtered.innerHTML = "";
+          coincidentes.forEach((card) => {
+            const clone = card.cloneNode(true);
+            filtered.appendChild(clone);
+          });
+          filtered.style.display = "grid";
+        }
+      }
+    });
+  });
+</script>
 {% endblock %}

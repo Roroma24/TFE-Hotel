@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Plaza Delfino | Empresas</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Inter", sans-serif;
+        background: #f5f7fb;
+        color: #1f2937;
+      }
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
+      .admin-shell {
+        display: grid;
+        grid-template-columns: 250px 1fr;
+        min-height: 100vh;
+      }
+      .admin-sidebar {
+        background: #f1f4f9;
+        border-right: 1px solid #e5eaf2;
+        padding: 26px 18px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .brand-block h1 {
+        font-size: 28px;
+        font-weight: 800;
+        color: #2563eb;
+        margin-bottom: 6px;
+      }
+      .brand-block p {
+        font-size: 11px;
+        color: #8b98ab;
+        letter-spacing: 1.6px;
+        text-transform: uppercase;
+      }
+      .side-nav {
+        margin-top: 34px;
+        display: grid;
+        gap: 10px;
+      }
+      .side-nav a {
+        padding: 14px 16px;
+        border-radius: 12px;
+        color: #6b7280;
+        font-size: 14px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transition: 0.2s ease;
+      }
+      .side-nav a:hover,
+      .side-nav a.active {
+        background: #ffffff;
+        color: #2563eb;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+      }
+      .side-bottom {
+        margin-top: 30px;
+      }
+      .new-booking-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 14px 16px;
+        background: #2563eb;
+        color: #fff;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        box-shadow: 0 10px 24px rgba(37, 99, 235, 0.25);
+      }
+      .admin-main {
+        padding: 28px 32px 32px;
+      }
+      .topbar {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        margin-bottom: 24px;
+      }
+      .profile-chip {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #ffffff;
+        border: 1px solid #e7ebf2;
+        border-radius: 14px;
+        padding: 8px 10px 8px 14px;
+      }
+      .profile-chip small {
+        display: block;
+        font-size: 10px;
+        text-transform: uppercase;
+        color: #9aa4b2;
+        letter-spacing: 1.3px;
+      }
+      .profile-chip strong {
+        font-size: 13px;
+        color: #374151;
+      }
+      .profile-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+        display: grid;
+        place-items: center;
+        color: #1d4ed8;
+        font-weight: 700;
+      }
+      .hero-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 20px;
+        margin-bottom: 24px;
+      }
+      .hero-row h2 {
+        font-size: 40px;
+        font-weight: 800;
+        color: #18212f;
+        margin-bottom: 4px;
+      }
+      .hero-row p {
+        color: #8b98ab;
+        font-size: 14px;
+      }
+      .panel {
+        background: #ffffff;
+        border: 1px solid #e8edf4;
+        border-radius: 18px;
+        padding: 24px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+        margin-bottom: 24px;
+      }
+      .panel-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 24px;
+      }
+      .panel-head h3 {
+        font-size: 24px;
+        font-weight: 800;
+        color: #1f2937;
+        margin-bottom: 4px;
+      }
+      .panel-head p {
+        font-size: 11px;
+        color: #9aa4b2;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 700;
+      }
+      .table-wrap {
+        overflow-x: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 760px;
+      }
+      th,
+      td {
+        padding: 14px 10px;
+        text-align: left;
+        border-bottom: 1px solid #eef2f7;
+        font-size: 13px;
+      }
+      th {
+        color: #94a3b8;
+        text-transform: uppercase;
+        font-size: 11px;
+        letter-spacing: 0.9px;
+        font-weight: 700;
+      }
+      td {
+        color: #374151;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 18px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        border: none;
+        cursor: pointer;
+        transition: 0.2s ease;
+      }
+      .btn-light {
+        background: #ffffff;
+        border: 1px solid #e7ebf2;
+        color: #2563eb;
+      }
+      .btn-light:hover {
+        background: #f0f4f9;
+        border-color: #d0dae8;
+      }
+      .btn-primary {
+        background: #2563eb;
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+      }
+      .btn-primary:hover {
+        background: #1d4ed8;
+        box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
+      }
+      .form-grid {
+        display: grid;
+        gap: 20px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .form-group {
+        display: grid;
+        gap: 8px;
+      }
+      .form-group.full {
+        grid-column: span 2;
+      }
+      label {
+        color: #4b5563;
+        font-size: 13px;
+        font-weight: 700;
+      }
+      input,
+      select {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        background: #f8fafc;
+        color: #1f2937;
+        font-size: 14px;
+      }
+      .error-box {
+        background: #fee2e2;
+        color: #991b1b;
+        border-radius: 14px;
+        padding: 14px 18px;
+        margin-bottom: 18px;
+      }
+      @media (max-width: 980px) {
+        .admin-shell {
+          grid-template-columns: 1fr;
+        }
+        .admin-sidebar {
+          border-right: none;
+          border-bottom: 1px solid #e5eaf2;
+        }
+      }
+      @media (max-width: 768px) {
+        .hero-row,
+        .topbar {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="admin-shell">
+      <aside class="admin-sidebar">
+        <div>
+          <div class="brand-block">
+            <h1>Plaza Delfino</h1>
+            <p>Portal de Gestión</p>
+          </div>
+          <nav class="side-nav">
+            <a href="{{ url_for('admin_dashboard') }}">▣ Panel</a>
+            <a href="{{ url_for('admin_bookings') }}">◫ Reservas</a>
+            <a href="{{ url_for('admin_clients') }}">◎ Clientes</a>
+            <a href="{{ url_for('admin_staff') }}">Personal</a>
+            <a href="{{ url_for('admin_rooms') }}">Habitaciones</a>
+            <a href="{{ url_for('admin_room_types') }}">Tipos de habitación</a>
+            <a href="{{ url_for('admin_companies') }}" class="active"
+              >Empresas</a
+            >
+            <a href="{{ url_for('admin_logout') }}">↩ Cerrar Sesión</a>
+          </nav>
+        </div>
+        <div class="side-bottom">
+          <a
+            href="{{ url_for('admin_nueva_reservacion') }}"
+            class="new-booking-btn"
+            >＋ Nueva Reserva</a
+          >
+        </div>
+      </aside>
+      <main class="admin-main">
+        <div class="topbar">
+          <div class="profile-chip">
+            <div>
+              <small>Perfil del Gerente</small>
+              <strong>{{ session.get('admin_usuario', 'Admin') }}</strong>
+            </div>
+            <div class="profile-avatar">A</div>
+          </div>
+        </div>
+
+        <div class="hero-row">
+          <div>
+            <h2>Empresas Asociadas</h2>
+            <p>Define descuentos preferenciales y datos de contacto.</p>
+          </div>
+          <a href="{{ url_for('admin_dashboard') }}" class="btn btn-light"
+            >Volver al Panel</a
+          >
+        </div>
+
+        {% if error %}
+        <div class="error-box">{{ error }}</div>
+        {% endif %}
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h3>Socios Corporativos</h3>
+              <p>Tarifas corporativas aplicadas a clientes de empresa.</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Empresa</th>
+                  <th>Correo</th>
+                  <th>Teléfono</th>
+                  <th>Descuento</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for empresa in empresas %}
+                <tr>
+                  <td>{{ empresa.nombre_empresa }}</td>
+                  <td>{{ empresa.correo }}</td>
+                  <td>{{ empresa.telefono }}</td>
+                  <td>{{ empresa.descuento | round(2) }}%</td>
+                  <td>
+                    <a
+                      href="{{ url_for('admin_companies_edit', empresa_id=empresa.id_empresa) }}"
+                      class="btn btn-light"
+                      >Editar</a
+                    >
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h3>
+                {% if selected_empresa %}Actualizar empresa{% else %}Agregar
+                empresa{% endif %}
+              </h3>
+              <p>Configura contacto y descuento preferencial.</p>
+            </div>
+          </div>
+          <form method="post">
+            <input
+              type="hidden"
+              name="empresa_id"
+              value="{{ selected_empresa.id_empresa if selected_empresa else '' }}"
+            />
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Razón social</label>
+                <input
+                  type="text"
+                  name="nombre_empresa"
+                  value="{{ selected_empresa.nombre_empresa if selected_empresa else '' }}"
+                />
+              </div>
+              <div class="form-group">
+                <label>Correo</label>
+                <input
+                  type="email"
+                  name="correo"
+                  value="{{ selected_empresa.correo if selected_empresa else '' }}"
+                />
+              </div>
+              <div class="form-group">
+                <label>Teléfono</label>
+                <input
+                  type="text"
+                  name="telefono"
+                  value="{{ selected_empresa.telefono if selected_empresa else '' }}"
+                />
+              </div>
+              <div class="form-group">
+                <label>Descuento (%)</label>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.01"
+                  name="descuento"
+                  value="{{ selected_empresa.descuento if selected_empresa else 0 }}"
+                />
+              </div>
+              <div class="form-group full">
+                <label>Dirección</label>
+                <input
+                  type="text"
+                  name="direccion"
+                  value="{{ selected_empresa.direccion if selected_empresa else '' }}"
+                />
+              </div>
+            </div>
+            <div
+              style="
+                margin-top: 18px;
+                display: flex;
+                gap: 12px;
+                flex-wrap: wrap;
+                align-items: center;
+              "
+            >
+              <button type="submit" class="btn btn-primary">
+                Guardar empresa
+              </button>
+              {% if selected_empresa %}
+              <a href="{{ url_for('admin_companies') }}" class="btn btn-light"
+                >Nueva empresa</a
+              >
+              {% endif %}
+            </div>
+          </form>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

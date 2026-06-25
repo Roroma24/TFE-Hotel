@@ -1,0 +1,195 @@
+{% extends 'base.html' %} {% block title %}Plaza Delfino | Prensa{% endblock %}
+{% block content %}
+<section class="contact-hero">
+  <div class="hero-content">
+    <p class="eyebrow center">Sala de prensa</p>
+    <h1>Prensa &amp; Medios</h1>
+    <div class="hero-line"></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div
+      style="
+        display: grid;
+        grid-template-columns: 1.3fr 0.7fr;
+        gap: 34px;
+        align-items: start;
+      "
+    >
+      <div style="display: grid; gap: 26px">
+        <div class="booking-panel">
+          <p class="eyebrow">Contacto de prensa</p>
+          <h2
+            style="
+              font-family: var(--serif);
+              font-size: 2.8rem;
+              font-weight: 500;
+              margin-bottom: 16px;
+            "
+          >
+            Departamento de Comunicación
+          </h2>
+          <p style="color: var(--muted); margin-bottom: 20px">
+            Para solicitudes de entrevistas, visitas de prensa, material
+            fotográfico oficial o cualquier consulta relacionada con Plaza
+            Delfino, nuestro equipo de comunicación está disponible de lunes a
+            viernes de 09:00 a 18:00 hrs.
+          </p>
+
+          <div style="display: grid; gap: 16px">
+            <div
+              style="border-bottom: 1px solid var(--line); padding-bottom: 16px"
+            >
+              <strong
+                style="
+                  display: block;
+                  font-size: 0.76rem;
+                  text-transform: uppercase;
+                  letter-spacing: 2px;
+                  color: var(--muted);
+                  margin-bottom: 6px;
+                "
+                >Directora de Comunicación</strong
+              >
+              <span>Sofía Aldana Vega</span>
+            </div>
+            <div
+              style="border-bottom: 1px solid var(--line); padding-bottom: 16px"
+            >
+              <strong
+                style="
+                  display: block;
+                  font-size: 0.76rem;
+                  text-transform: uppercase;
+                  letter-spacing: 2px;
+                  color: var(--muted);
+                  margin-bottom: 6px;
+                "
+                >Correo de prensa</strong
+              >
+              <span>prensa@plazadelfino.com</span>
+            </div>
+            <div
+              style="border-bottom: 1px solid var(--line); padding-bottom: 16px"
+            >
+              <strong
+                style="
+                  display: block;
+                  font-size: 0.76rem;
+                  text-transform: uppercase;
+                  letter-spacing: 2px;
+                  color: var(--muted);
+                  margin-bottom: 6px;
+                "
+                >Teléfono directo</strong
+              >
+              <span>+52 (998) 800 4200 ext. 301</span>
+            </div>
+            <div>
+              <strong
+                style="
+                  display: block;
+                  font-size: 0.76rem;
+                  text-transform: uppercase;
+                  letter-spacing: 2px;
+                  color: var(--muted);
+                  margin-bottom: 6px;
+                "
+                >Tiempo de respuesta</strong
+              >
+              <span style="color: var(--muted)">Máximo 48 horas hábiles</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="booking-panel">
+          <p class="eyebrow">Notas de prensa</p>
+          <h2
+            style="
+              font-family: var(--serif);
+              font-size: 2rem;
+              font-weight: 500;
+              margin-bottom: 20px;
+            "
+          >
+            Últimas publicaciones
+          </h2>
+
+          <div style="display: grid; gap: 18px">
+            {% set notas = [ ("Marzo 2025", "Plaza Delfino recibe el premio
+            'Mejor Resort de Lujo Caribe 2025' por la revista Condé Nast
+            Traveler."), ("Enero 2025", "Inauguramos nuestra nueva ala de
+            habitaciones Coral Suite con vista panorámica al mar."), ("Noviembre
+            2024", "Plaza Delfino implementa programa de energía solar cubriendo
+            el 60% de su consumo eléctrico."), ("Septiembre 2024", "Alianza
+            estratégica con chefs galardonados para renovar la propuesta
+            gastronómica del resort.") ] %} {% for fecha, texto in notas %}
+            <article
+              style="border-bottom: 1px solid var(--line); padding-bottom: 18px"
+            >
+              <span
+                style="
+                  font-size: 0.72rem;
+                  text-transform: uppercase;
+                  letter-spacing: 2px;
+                  color: var(--gold);
+                "
+                >{{ fecha }}</span
+              >
+              <p
+                style="color: var(--muted); margin-top: 6px; font-size: 0.95rem"
+              >
+                {{ texto }}
+              </p>
+            </article>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <div style="display: grid; gap: 24px; position: sticky; top: 100px">
+        <div class="side-panel">
+          <p class="eyebrow">Visitas al resort</p>
+          <h3
+            style="
+              font-family: var(--serif);
+              font-size: 1.8rem;
+              font-weight: 500;
+              margin-bottom: 14px;
+            "
+          >
+            Prensa acreditada
+          </h3>
+          <p style="color: var(--muted); font-size: 0.92rem">
+            Ofrecemos estancias de prensa para periodistas y fotógrafos
+            acreditados de medios especializados en turismo, gastronomía y
+            estilo de vida. Las solicitudes deben presentarse con un mínimo de 3
+            semanas de anticipación.
+          </p>
+        </div>
+
+        <div class="side-panel">
+          <p class="eyebrow">Síguenos</p>
+          <h3
+            style="
+              font-family: var(--serif);
+              font-size: 1.8rem;
+              font-weight: 500;
+              margin-bottom: 14px;
+            "
+          >
+            Redes oficiales
+          </h3>
+          <div style="display: flex; flex-direction: column; gap: 10px">
+            <a href="#" class="btn-line">Instagram @plazadelfino</a>
+            <a href="#" class="btn-line">LinkedIn Plaza Delfino</a>
+            <a href="#" class="btn-line">Facebook Plaza Delfino</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

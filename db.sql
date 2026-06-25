@@ -25,7 +25,8 @@ CREATE TABLE EMPRESAS (
     nombre_empresa VARCHAR(150) NOT NULL,
     direccion VARCHAR(255),
     telefono VARCHAR(50),
-    correo VARCHAR(100)
+    correo VARCHAR(100),
+    descuento DECIMAL(5,2) DEFAULT 0.0
 );
 
 -- Usuarios

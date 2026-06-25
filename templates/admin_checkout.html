@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Plaza Delfino | Check-out</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Inter", sans-serif;
+        background: #f5f7fb;
+        color: #1f2937;
+      }
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
+      .admin-shell {
+        display: grid;
+        grid-template-columns: 250px 1fr;
+        min-height: 100vh;
+      }
+      .admin-sidebar {
+        background: #f1f4f9;
+        border-right: 1px solid #e5eaf2;
+        padding: 26px 18px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .brand-block h1 {
+        font-size: 28px;
+        font-weight: 800;
+        color: #2563eb;
+        margin-bottom: 6px;
+      }
+      .brand-block p {
+        font-size: 11px;
+        color: #8b98ab;
+        letter-spacing: 1.6px;
+        text-transform: uppercase;
+      }
+      .side-nav {
+        margin-top: 34px;
+        display: grid;
+        gap: 8px;
+      }
+      .side-nav a {
+        padding: 13px 14px;
+        border-radius: 12px;
+        color: #6b7280;
+        font-size: 14px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transition: 0.2s ease;
+      }
+      .side-nav a:hover,
+      .side-nav a.active {
+        background: #ffffff;
+        color: #2563eb;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+      }
+      .side-bottom {
+        margin-top: 30px;
+      }
+      .admin-main {
+        padding: 22px 26px 24px;
+      }
+      .topbar {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        margin-bottom: 24px;
+      }
+      .profile-chip {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #ffffff;
+        border: 1px solid #e7ebf2;
+        border-radius: 14px;
+        padding: 8px 10px 8px 14px;
+      }
+      .page-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+      .page-head h2 {
+        font-size: 28px;
+        font-weight: 700;
+      }
+      .page-head p {
+        color: #6b7280;
+      }
+      .panel {
+        background: #ffffff;
+        border-radius: 24px;
+        box-shadow: 0 16px 40px rgba(15, 23, 42, 0.05);
+        padding: 28px;
+        margin-bottom: 24px;
+      }
+      .panel-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      .panel-head h3 {
+        font-size: 20px;
+        font-weight: 700;
+      }
+      .panel-head p {
+        color: #6b7280;
+      }
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+      }
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .form-group label {
+        font-size: 14px;
+        font-weight: 600;
+        color: #374151;
+      }
+      .form-group input {
+        border: 1px solid #d1d5db;
+        border-radius: 12px;
+        padding: 14px 16px;
+        font-size: 14px;
+        color: #111827;
+      }
+      .form-group input:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+      }
+      .btn-primary,
+      .btn-main {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 14px 20px;
+        background: #2563eb;
+        color: #ffffff;
+        border-radius: 14px;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        transition: 0.2s ease;
+      }
+      .btn-primary:hover,
+      .btn-main:hover {
+        background: #1d4ed8;
+      }
+      .alert {
+        background: #fef3c7;
+        color: #92400e;
+        border: 1px solid #fcd34d;
+        border-radius: 16px;
+        padding: 18px 20px;
+        margin-bottom: 20px;
+      }
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+      }
+      .summary-card {
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius: 18px;
+        padding: 20px;
+      }
+      .summary-card h4 {
+        margin-bottom: 12px;
+        font-size: 16px;
+        color: #111827;
+      }
+      .summary-card p {
+        font-size: 14px;
+        color: #4b5563;
+        line-height: 1.7;
+      }
+      .field-row {
+        display: grid;
+        gap: 12px;
+      }
+      .field-row .form-group {
+        width: 100%;
+      }
+      .service-list {
+        margin-top: 16px;
+      }
+      .service-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 16px;
+        border-radius: 14px;
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        margin-bottom: 10px;
+      }
+      .service-item .label {
+        font-weight: 600;
+        color: #111827;
+      }
+      .service-item .price {
+        color: #2563eb;
+        font-weight: 700;
+      }
+      .footer-mini {
+        margin-top: 30px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 12px;
+        color: #6b7280;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="admin-shell">
+      <aside class="admin-sidebar">
+        <div>
+          <div class="brand-block">
+            <h1>Plaza Delfino</h1>
+            <p>Panel Administrativo</p>
+          </div>
+          <nav class="side-nav">
+            <a href="{{ url_for('admin_dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('admin_bookings') }}" class="active">Reservas</a>
+            <a href="{{ url_for('admin_clients') }}">Clientes</a>
+            <a href="{{ url_for('admin_recepcion') }}">Recepción</a>
+          </nav>
+        </div>
+        <div class="side-bottom">
+          <a href="{{ url_for('admin_bookings') }}" class="new-booking-btn">Volver a Reservas</a>
+        </div>
+      </aside>
+
+      <main class="admin-main">
+        <div class="topbar">
+          <div class="profile-chip">
+            <span>Recepción</span>
+          </div>
+        </div>
+
+        <div class="page-head">
+          <div>
+            <h2>Check-out / Pago</h2>
+            <p>Registra un pago para cerrar la reserva y generar la factura.</p>
+          </div>
+        </div>
+
+        {% if error %}
+        <div class="alert">{{ error }}</div>
+        {% endif %}
+
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h3>Reserva</h3>
+              <p>
+                Folio {{ reserva.id_reserva }} · {{ reserva.habitacion_numero }}
+                · {{ reserva.habitacion_nombre }}
+              </p>
+            </div>
+            <div>
+              <span style="font-weight: 700; color: #2563eb">Total reserva: ${{ reserva.total_estimado }}</span>
+            </div>
+          </div>
+
+          <div class="summary-grid">
+            <div class="summary-card">
+              <h4>Cliente</h4>
+              <p>{{ reserva.cliente_nombre }} {{ reserva.cliente_apellido }}</p>
+              <p>{{ reserva.cliente_telefono }}</p>
+              <p>{{ reserva.cliente_correo }}</p>
+            </div>
+            <div class="summary-card">
+              <h4>Estancia</h4>
+              <p>Entrada: {{ reserva.fecha_entrada }}</p>
+              <p>Salida: {{ reserva.fecha_salida }}</p>
+              <p>Huéspedes: {{ reserva.cantidad_huespedes }}</p>
+              <p>Tipo: {{ reserva.nombre_tipo }}</p>
+            </div>
+          </div>
+
+          <div class="summary-card" style="margin-top: 18px">
+            <h4>Consumos adicionales</h4>
+            {% if servicios %}
+            <div class="service-list">
+              {% for servicio in servicios %}
+              <div class="service-item">
+                <div>
+                  <div class="label">{{ servicio.nombre_servicio }}</div>
+                  <div>{{ servicio.descripcion or 'Servicio registrado' }}</div>
+                </div>
+                <div class="price">${{ servicio.costo }}</div>
+              </div>
+              {% endfor %}
+            </div>
+            <p style="font-weight: 700; margin-top: 12px">
+              Total consumos: ${{ consumos_total }}
+            </p>
+            {% else %}
+            <p>No hay consumos registrados para esta reserva.</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h3>Datos de pago</h3>
+              <p>Procesa el pago únicamente si hay consumos adicionales.</p>
+            </div>
+          </div>
+
+          {% if not requiere_pago %}
+            <div class="alert">
+              No hay consumos adicionales para esta reserva. Puedes completar el
+              checkout sin agregar servicios.
+            </div>
+            {% if not pago_existente %}
+              <p style="margin-bottom: 16px; color: #374151">
+                No se necesita procesar pago al cerrar esta reserva.
+              </p>
+            {% endif %} 
+          {% else %} 
+            {% if pago_existente %}
+              <div class="alert" style="background: #d1fae5; color: #166534; border-color: #a7f3d0">
+                Ya existe un pago registrado para la reserva original.
+                {% if pago_existente.referencia %}<br />Referencia: {{ pago_existente.referencia }}{% endif %} 
+                {% if pago_existente.fecha_pago %}<br />Fecha pago: {{ pago_existente.fecha_pago }}{% endif %}
+              </div>
+            {% endif %} 
+          {% endif %}
+
+          <form method="post">
+            {% if requiere_pago %}
+            <div class="form-grid">
+              <div class="form-group" style="grid-column: 1 / -1">
+                <label>Nombre del titular</label>
+                <input
+                  type="text"
+                  name="titular"
+                  value="{{ pago_form.titular or '' }}"
+                  required
+                />
+              </div>
+
+              <div class="form-group" style="grid-column: 1 / -1">
+                <label>Número de tarjeta</label>
+                <input
+                  type="text"
+                  name="tarjeta"
+                  placeholder="1234 5678 9012 3456"
+                  value="{{ pago_form.tarjeta or '' }}"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label>Vencimiento</label>
+                <input
+                  type="text"
+                  name="vencimiento"
+                  placeholder="MM/AA"
+                  value="{{ pago_form.vencimiento or '' }}"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label>CVV</label>
+                <input
+                  type="text"
+                  name="cvv"
+                  placeholder="123"
+                  value="{{ pago_form.cvv or '' }}"
+                  required
+                />
+              </div>
+            </div>
+            {% endif %}
+
+            <button type="submit" class="btn-main" style="margin-top: 24px">
+              {% if not requiere_pago %} 
+                Completar checkout 
+              {% elif pago_existente %} 
+                Completar checkout 
+              {% else %} 
+                Registrar pago y hacer check-out 
+              {% endif %}
+            </button>
+          </form>
+        </div>
+
+        <div class="footer-mini">
+          <span>© 2024 Plaza Delfino Management Group</span>
+          <span>Proceso de checkout</span>
+          <span>Recepción</span>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

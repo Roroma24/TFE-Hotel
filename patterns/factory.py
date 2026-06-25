@@ -125,15 +125,16 @@ class Pago(DocumentoContable):
     Registra un pago vinculado a una factura.
 
     Uso en /cobro, después de crear la factura:
-        pago = Pago(id_factura, id_reserva, total)
+        pago = Pago(id_factura, id_reserva, total, referencia)
         pago.insertar(execute_query)
     """
 
-    def __init__(self, id_factura: int, id_reserva: int, monto: float):
+    def __init__(self, id_factura: int, id_reserva: int, monto: float, referencia: str | None = None, estado_pago: str = "aprobado"):
         self.id_factura  = id_factura
-        self.referencia  = f"REF-{id_reserva}"
+        self.referencia  = referencia or f"REF-{id_reserva}"
         self.monto       = round(float(monto), 2)
         self.fecha       = date.today()
+        self.estado_pago = estado_pago
 
     def insertar(self, execute_query_fn) -> int:
         return execute_query_fn(
@@ -142,7 +143,7 @@ class Pago(DocumentoContable):
                 (id_factura, fecha_pago, monto, referencia, estado_pago)
             VALUES (%s, %s, %s, %s, %s)
             """,
-            (self.id_factura, self.fecha, self.monto, self.referencia, "aprobado"),
+            (self.id_factura, self.fecha, self.monto, self.referencia, self.estado_pago),
         )
 
 
@@ -157,11 +158,18 @@ class FabricaDocumento:
     """
 
     @staticmethod
-    def crear_factura_y_pago(execute_query_fn, id_reserva: int, id_cliente: int, total: float) -> int:
+    def crear_factura_y_pago(
+        execute_query_fn,
+        id_reserva: int,
+        id_cliente: int,
+        total: float,
+        referencia: str | None = None,
+        estado_pago: str = "aprobado",
+    ) -> int:
         factura = Factura(id_reserva, id_cliente, total)
         id_factura = factura.insertar(execute_query_fn)
 
-        pago = Pago(id_factura, id_reserva, total)
+        pago = Pago(id_factura, id_reserva, total, referencia, estado_pago)
         pago.insertar(execute_query_fn)
 
         return id_factura

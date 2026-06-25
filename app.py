@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash, check_password_hash
 from patterns.observer import gestor_eventos, ObservadorCorreo, ObservadorHabitacion, ObservadorLog
 from patterns.facade   import ServicioReservas
+from patterns.factory  import Pago, FabricaDocumento
 from patterns.builder  import DirectorReporte, BuilderReporteHotel
 
 load_dotenv()
@@ -145,12 +146,87 @@ def calcular_noches(fecha_entrada, fecha_salida):
         return 1
 
 
-def calcular_total(precio_habitacion, personas, noches):
+def calcular_total(precio_habitacion, personas, noches, descuento=0.0):
     personas = int(personas)
     total = float(precio_habitacion) * noches
     if personas > 2:
         total += (personas - 2) * 45 * noches
+    try:
+        descuento = float(descuento or 0)
+    except Exception:
+        descuento = 0.0
+    descuento = max(0.0, min(100.0, descuento))
+    if descuento > 0:
+        total = total * (1 - descuento / 100)
     return round(total, 2)
+
+
+def get_roles_admin():
+    return fetch_all(
+        "SELECT id_rol, nombre_rol FROM ROLES WHERE nombre_rol IN ('gerente', 'recepcionista') ORDER BY id_rol"
+    )
+
+
+def get_staff_admin():
+    return fetch_all(
+        "SELECT u.id_usuario, u.id_rol, u.nombre, u.apellido, u.usuario, u.correo, u.estado, r.nombre_rol "
+        "FROM USUARIOS u "
+        "INNER JOIN ROLES r ON r.id_rol = u.id_rol "
+        "WHERE r.nombre_rol IN ('gerente', 'recepcionista') "
+        "ORDER BY u.id_usuario"
+    )
+
+
+def get_staff_by_id(id_usuario):
+    return fetch_one(
+        "SELECT u.id_usuario, u.id_rol, u.nombre, u.apellido, u.usuario, u.correo, u.estado "
+        "FROM USUARIOS u "
+        "INNER JOIN ROLES r ON r.id_rol = u.id_rol "
+        "WHERE u.id_usuario = %s AND r.nombre_rol IN ('gerente', 'recepcionista')",
+        (id_usuario,),
+    )
+
+
+def get_room_types():
+    return fetch_all(
+        "SELECT id_tipo_habitacion, nombre_tipo, descripcion, capacidad, precio_base "
+        "FROM TIPOS_HABITACION "
+        "ORDER BY nombre_tipo"
+    )
+
+
+def get_habitacion_por_id(id_habitacion):
+    return fetch_one(
+        "SELECT id_habitacion, id_tipo_habitacion, numero, piso, estado, observaciones "
+        "FROM HABITACIONES WHERE id_habitacion = %s",
+        (id_habitacion,),
+    )
+
+
+def get_tipo_habitacion_por_id(id_tipo_habitacion):
+    return fetch_one(
+        "SELECT id_tipo_habitacion, nombre_tipo, descripcion, capacidad, precio_base "
+        "FROM TIPOS_HABITACION WHERE id_tipo_habitacion = %s",
+        (id_tipo_habitacion,),
+    )
+
+
+def get_empresa_por_id(id_empresa):
+    if not id_empresa:
+        return None
+    return fetch_one(
+        "SELECT id_empresa, nombre_empresa, direccion, telefono, correo, descuento "
+        "FROM EMPRESAS WHERE id_empresa = %s",
+        (id_empresa,),
+    )
+
+
+def get_empresas_admin():
+    return fetch_all(
+        "SELECT id_empresa, nombre_empresa, direccion, telefono, correo, descuento "
+        "FROM EMPRESAS "
+        "ORDER BY nombre_empresa"
+    )
 
 
 def format_folio(id_reserva):
@@ -503,6 +579,47 @@ def get_reservas_db():
             }
         )
     return reservas
+
+
+def get_factura_por_reserva(id_reserva):
+    return fetch_one(
+        "SELECT id_factura, id_cliente, subtotal, impuestos, total, estado_factura "
+        "FROM FACTURAS WHERE id_reserva = %s ORDER BY id_factura DESC LIMIT 1",
+        (id_reserva,),
+    )
+
+
+def get_facturas_por_reserva(id_reserva):
+    return fetch_all(
+        "SELECT id_factura, id_cliente, subtotal, impuestos, total, estado_factura "
+        "FROM FACTURAS WHERE id_reserva = %s ORDER BY id_factura ASC",
+        (id_reserva,),
+    )
+
+
+def get_pago_por_factura(id_factura):
+    return fetch_one(
+        "SELECT id_pago, referencia, fecha_pago, estado_pago FROM PAGOS WHERE id_factura = %s LIMIT 1",
+        (id_factura,),
+    )
+
+
+# =========================
+# SERVICIOS / CONSUMOS
+# =========================
+def get_servicios_por_reserva(id_reserva):
+    return fetch_all(
+        "SELECT id_servicio, nombre_servicio, descripcion, costo, fecha_servicio FROM SERVICIOS WHERE descripcion LIKE %s ORDER BY fecha_servicio DESC",
+        (f"%reserva_id:{id_reserva}%",),
+    )
+
+
+def agregar_servicio_a_reserva(id_reserva, nombre_servicio, costo, descripcion_extra=""):
+    descripcion = f"reserva_id:{id_reserva}|{descripcion_extra}"
+    return execute_query(
+        "INSERT INTO SERVICIOS (nombre_servicio, descripcion, costo, fecha_servicio) VALUES (%s, %s, %s, %s)",
+        (nombre_servicio, descripcion, costo, datetime.now()),
+    )
 
 
 # =========================
@@ -1081,6 +1198,85 @@ def admin_recepcion():
     )
 
 
+@app.route("/admin/consumos")
+@admin_required
+@role_required("gerente", "recepcionista")
+def admin_consumos_index():
+    habitaciones = obtener_habitaciones_admin()
+    activas = [h for h in habitaciones if h["estado_visual"] != "libre"]
+    return render_template(
+        "admin_consumos_index.html",
+        activas=activas,
+    )
+
+
+@app.route("/admin/consumos/<folio>", methods=["GET", "POST"])
+@admin_required
+@role_required("gerente", "recepcionista")
+def admin_consumos(folio):
+    id_reserva = folio_to_id(folio)
+    if not id_reserva:
+        return redirect(url_for("admin_consumos_index"))
+
+    error = None
+    if request.method == "POST":
+        nombre = request.form.get("nombre", "").strip()
+        costo = request.form.get("costo", "").strip()
+        descripcion = request.form.get("descripcion", "").strip()
+
+        if not nombre or not costo:
+            error = "Nombre y costo son obligatorios"
+        else:
+            try:
+                costo_f = float(costo)
+                agregar_servicio_a_reserva(id_reserva, nombre, costo_f, descripcion)
+                return redirect(url_for("admin_consumos", folio=folio))
+            except Exception:
+                error = "Costo inválido"
+
+    servicios = get_servicios_por_reserva(id_reserva)
+    # Normalizar y calcular total de servicios
+    servicios_display = []
+    total_servicios = 0.0
+    for s in servicios:
+        costo = float(s.get("costo") or 0)
+        total_servicios += costo
+        desc = s.get("descripcion") or ""
+        if "|" in desc:
+            desc_parts = desc.split("|", 1)
+            descripcion_display = desc_parts[1]
+        else:
+            descripcion_display = desc
+        servicios_display.append(
+            {
+                "id_servicio": s.get("id_servicio"),
+                "fecha_servicio": s.get("fecha_servicio"),
+                "nombre_servicio": s.get("nombre_servicio"),
+                "descripcion": descripcion_display,
+                "costo": costo,
+            }
+        )
+
+    reserva = fetch_one(
+        "SELECT r.id_reserva, r.fecha_entrada, r.fecha_salida, c.nombre AS cliente_nombre, c.apellido AS cliente_apellido, h.numero AS habitacion_numero FROM RESERVAS r INNER JOIN CLIENTES c ON c.id_cliente = r.id_cliente INNER JOIN HABITACIONES h ON h.id_habitacion = r.id_habitacion WHERE r.id_reserva = %s",
+        (id_reserva,),
+    )
+
+    cliente_nombre = ""
+    if reserva:
+        cliente_nombre = f"{reserva.get('cliente_nombre','')} {reserva.get('cliente_apellido','')}".strip()
+
+    return render_template(
+        "admin_consumos.html",
+        servicios=servicios_display,
+        total_servicios=round(total_servicios, 2),
+        folio=folio,
+        reserva=reserva,
+        cliente_nombre=cliente_nombre,
+        error=error,
+    )
+
+
 # =========================
 # GERENTE
 # =========================
@@ -1130,6 +1326,319 @@ def admin_clients():
     )
 
 
+@app.route("/admin/staff", methods=["GET", "POST"])
+@admin_required
+@role_required("gerente")
+def admin_staff():
+    staff = get_staff_admin()
+    roles = get_roles_admin()
+    error = None
+
+    if request.method == "POST":
+        staff_id = request.form.get("staff_id")
+        nombre = request.form.get("nombre", "").strip()
+        apellido = request.form.get("apellido", "").strip()
+        usuario = request.form.get("usuario", "").strip()
+        correo = request.form.get("correo", "").strip()
+        password = request.form.get("password", "").strip()
+        id_rol = request.form.get("id_rol")
+        estado = request.form.get("estado", "activo").strip()
+
+        if not nombre or not usuario or not correo or not id_rol:
+            error = "Nombre, usuario, correo y rol son obligatorios."
+        elif not staff_id and not password:
+            error = "La contraseña es obligatoria para nuevos usuarios."
+        else:
+            if staff_id:
+                query = "UPDATE USUARIOS SET id_rol = %s, nombre = %s, apellido = %s, usuario = %s, correo = %s, estado = %s"
+                params = [id_rol, nombre, apellido, usuario, correo, estado]
+                if password:
+                    query += ", password = %s"
+                    params.append(generate_password_hash(password))
+                query += " WHERE id_usuario = %s"
+                params.append(staff_id)
+                execute_query(query, tuple(params))
+            else:
+                execute_query(
+                    "INSERT INTO USUARIOS (id_rol, nombre, apellido, usuario, password, correo, estado) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                    (
+                        id_rol,
+                        nombre,
+                        apellido,
+                        usuario,
+                        generate_password_hash(password),
+                        correo,
+                        estado,
+                    ),
+                )
+            return redirect(url_for("admin_staff"))
+
+    return render_template("admin_staff.html", staff=staff, roles=roles, error=error)
+
+
+@app.route("/admin/staff/<int:staff_id>", methods=["GET", "POST"])
+@admin_required
+@role_required("gerente")
+def admin_staff_edit(staff_id):
+    staff_member = get_staff_by_id(staff_id)
+    if not staff_member:
+        return redirect(url_for("admin_staff"))
+
+    roles = get_roles_admin()
+    error = None
+
+    if request.method == "POST":
+        nombre = request.form.get("nombre", "").strip()
+        apellido = request.form.get("apellido", "").strip()
+        usuario = request.form.get("usuario", "").strip()
+        correo = request.form.get("correo", "").strip()
+        password = request.form.get("password", "").strip()
+        id_rol = request.form.get("id_rol")
+        estado = request.form.get("estado", "activo").strip()
+
+        if not nombre or not usuario or not correo or not id_rol:
+            error = "Nombre, usuario, correo y rol son obligatorios."
+        else:
+            query = "UPDATE USUARIOS SET id_rol = %s, nombre = %s, apellido = %s, usuario = %s, correo = %s, estado = %s"
+            params = [id_rol, nombre, apellido, usuario, correo, estado]
+            if password:
+                query += ", password = %s"
+                params.append(generate_password_hash(password))
+            query += " WHERE id_usuario = %s"
+            params.append(staff_id)
+            execute_query(query, tuple(params))
+            return redirect(url_for("admin_staff"))
+
+    return render_template(
+        "admin_staff.html",
+        staff=[staff_member],
+        roles=roles,
+        error=error,
+        selected_staff=staff_member,
+    )
+
+
+@app.route("/admin/room-types", methods=["GET", "POST"])
+@admin_required
+@role_required("gerente")
+def admin_room_types():
+    tipos = get_room_types()
+    error = None
+
+    if request.method == "POST":
+        tipo_id = request.form.get("tipo_id")
+        nombre_tipo = request.form.get("nombre_tipo", "").strip()
+        descripcion = request.form.get("descripcion", "").strip()
+        capacidad = request.form.get("capacidad", "").strip()
+        precio_base = request.form.get("precio_base", "").strip()
+
+        if not nombre_tipo or not capacidad or not precio_base:
+            error = "Nombre, capacidad y precio base son obligatorios."
+        else:
+            try:
+                capacidad_i = int(capacidad)
+                precio_f = float(precio_base)
+            except Exception:
+                error = "Capacidad o precio base inválidos."
+
+        if not error:
+            if tipo_id:
+                execute_query(
+                    "UPDATE TIPOS_HABITACION SET nombre_tipo = %s, descripcion = %s, capacidad = %s, precio_base = %s WHERE id_tipo_habitacion = %s",
+                    (nombre_tipo, descripcion, capacidad_i, precio_f, tipo_id),
+                )
+            else:
+                execute_query(
+                    "INSERT INTO TIPOS_HABITACION (nombre_tipo, descripcion, capacidad, precio_base) VALUES (%s, %s, %s, %s)",
+                    (nombre_tipo, descripcion, capacidad_i, precio_f),
+                )
+            return redirect(url_for("admin_room_types"))
+
+    return render_template("admin_room_types.html", tipos=tipos, error=error)
+
+
+@app.route("/admin/room-types/<int:tipo_id>", methods=["GET", "POST"])
+@admin_required
+@role_required("gerente")
+def admin_room_types_edit(tipo_id):
+    tipo = get_tipo_habitacion_por_id(tipo_id)
+    if not tipo:
+        return redirect(url_for("admin_room_types"))
+
+    error = None
+    if request.method == "POST":
+        nombre_tipo = request.form.get("nombre_tipo", "").strip()
+        descripcion = request.form.get("descripcion", "").strip()
+        capacidad = request.form.get("capacidad", "").strip()
+        precio_base = request.form.get("precio_base", "").strip()
+
+        if not nombre_tipo or not capacidad or not precio_base:
+            error = "Nombre, capacidad y precio base son obligatorios."
+        else:
+            try:
+                capacidad_i = int(capacidad)
+                precio_f = float(precio_base)
+            except Exception:
+                error = "Capacidad o precio base inválidos."
+
+        if not error:
+            execute_query(
+                "UPDATE TIPOS_HABITACION SET nombre_tipo = %s, descripcion = %s, capacidad = %s, precio_base = %s WHERE id_tipo_habitacion = %s",
+                (nombre_tipo, descripcion, capacidad_i, precio_f, tipo_id),
+            )
+            return redirect(url_for("admin_room_types"))
+
+    return render_template("admin_room_types.html", tipos=[tipo], error=error, selected_tipo=tipo)
+
+
+@app.route("/admin/rooms", methods=["GET", "POST"])
+@admin_required
+@role_required("gerente")
+def admin_rooms():
+    habitaciones = get_habitaciones_croquis_db()
+    tipos = get_room_types()
+    error = None
+
+    if request.method == "POST":
+        habitacion_id = request.form.get("habitacion_id")
+        tipo_id = request.form.get("tipo_id")
+        numero = request.form.get("numero", "").strip()
+        piso = request.form.get("piso", "").strip()
+        estado = request.form.get("estado", "libre").strip()
+        observaciones = request.form.get("observaciones", "").strip()
+
+        if not tipo_id or not numero:
+            error = "Tipo y número de habitación son obligatorios."
+        else:
+            if habitacion_id:
+                execute_query(
+                    "UPDATE HABITACIONES SET id_tipo_habitacion = %s, numero = %s, piso = %s, estado = %s, observaciones = %s WHERE id_habitacion = %s",
+                    (tipo_id, numero, piso, estado, observaciones, habitacion_id),
+                )
+            else:
+                execute_query(
+                    "INSERT INTO HABITACIONES (id_tipo_habitacion, numero, piso, estado, observaciones) VALUES (%s, %s, %s, %s, %s)",
+                    (tipo_id, numero, piso, estado, observaciones),
+                )
+            return redirect(url_for("admin_rooms"))
+
+    return render_template("admin_rooms.html", habitaciones=habitaciones, tipos=tipos, error=error)
+
+
+@app.route("/admin/rooms/<int:habitacion_id>", methods=["GET", "POST"])
+@admin_required
+@role_required("gerente")
+def admin_rooms_edit(habitacion_id):
+    habitacion = get_habitacion_por_id(habitacion_id)
+    if not habitacion:
+        return redirect(url_for("admin_rooms"))
+
+    tipos = get_room_types()
+    error = None
+
+    if request.method == "POST":
+        tipo_id = request.form.get("tipo_id")
+        numero = request.form.get("numero", "").strip()
+        piso = request.form.get("piso", "").strip()
+        estado = request.form.get("estado", "libre").strip()
+        observaciones = request.form.get("observaciones", "").strip()
+
+        if not tipo_id or not numero:
+            error = "Tipo y número de habitación son obligatorios."
+        else:
+            execute_query(
+                "UPDATE HABITACIONES SET id_tipo_habitacion = %s, numero = %s, piso = %s, estado = %s, observaciones = %s WHERE id_habitacion = %s",
+                (tipo_id, numero, piso, estado, observaciones, habitacion_id),
+            )
+            return redirect(url_for("admin_rooms"))
+
+    return render_template(
+        "admin_rooms.html",
+        habitaciones=[habitacion],
+        tipos=tipos,
+        error=error,
+        selected_room=habitacion,
+    )
+
+
+@app.route("/admin/companies", methods=["GET", "POST"])
+@admin_required
+@role_required("gerente")
+def admin_companies():
+    empresas = get_empresas_admin()
+    error = None
+
+    if request.method == "POST":
+        empresa_id = request.form.get("empresa_id")
+        nombre_empresa = request.form.get("nombre_empresa", "").strip()
+        direccion = request.form.get("direccion", "").strip()
+        telefono = request.form.get("telefono", "").strip()
+        correo = request.form.get("correo", "").strip()
+        descuento = request.form.get("descuento", "0").strip()
+
+        if not nombre_empresa or not correo:
+            error = "Nombre de empresa y correo son obligatorios."
+        else:
+            try:
+                descuento_f = float(descuento)
+            except Exception:
+                descuento_f = 0.0
+
+        if not error:
+            if empresa_id:
+                execute_query(
+                    "UPDATE EMPRESAS SET nombre_empresa = %s, direccion = %s, telefono = %s, correo = %s, descuento = %s WHERE id_empresa = %s",
+                    (nombre_empresa, direccion, telefono, correo, descuento_f, empresa_id),
+                )
+            else:
+                execute_query(
+                    "INSERT INTO EMPRESAS (nombre_empresa, direccion, telefono, correo, descuento) VALUES (%s, %s, %s, %s, %s)",
+                    (nombre_empresa, direccion, telefono, correo, descuento_f),
+                )
+            return redirect(url_for("admin_companies"))
+
+    return render_template("admin_companies.html", empresas=empresas, error=error)
+
+
+@app.route("/admin/companies/<int:empresa_id>", methods=["GET", "POST"])
+@admin_required
+@role_required("gerente")
+def admin_companies_edit(empresa_id):
+    empresa = get_empresa_por_id(empresa_id)
+    if not empresa:
+        return redirect(url_for("admin_companies"))
+
+    error = None
+    if request.method == "POST":
+        nombre_empresa = request.form.get("nombre_empresa", "").strip()
+        direccion = request.form.get("direccion", "").strip()
+        telefono = request.form.get("telefono", "").strip()
+        correo = request.form.get("correo", "").strip()
+        descuento = request.form.get("descuento", "0").strip()
+
+        if not nombre_empresa or not correo:
+            error = "Nombre de empresa y correo son obligatorios."
+        else:
+            try:
+                descuento_f = float(descuento)
+            except Exception:
+                descuento_f = 0.0
+
+        if not error:
+            execute_query(
+                "UPDATE EMPRESAS SET nombre_empresa = %s, direccion = %s, telefono = %s, correo = %s, descuento = %s WHERE id_empresa = %s",
+                (nombre_empresa, direccion, telefono, correo, descuento_f, empresa_id),
+            )
+            return redirect(url_for("admin_companies"))
+
+    return render_template(
+        "admin_companies.html",
+        empresas=[empresa],
+        error=error,
+        selected_empresa=empresa,
+    )
+
+
 # =========================
 # BOOKINGS / CHECK-IN / CHECK-OUT
 # =========================
@@ -1171,19 +1680,129 @@ def admin_check_in(folio):
     return redirect(url_for("admin_bookings"))
 
 
-@app.route("/admin/bookings/check-out/<folio>")
+@app.route("/admin/bookings/check-out/<folio>", methods=["GET", "POST"])
 @admin_required
 @role_required("gerente", "recepcionista")
 def admin_check_out(folio):
     id_reserva = folio_to_id(folio)
-    admin_id   = session.get("admin_id")
+    admin_id = session.get("admin_id")
+    if not id_reserva or not admin_id:
+        return redirect(url_for("admin_bookings"))
 
-    if id_reserva and admin_id:
+    reserva = fetch_one(
+        """
+        SELECT r.id_reserva, r.id_cliente, r.total_estimado, r.fecha_entrada,
+               r.fecha_salida, r.cantidad_huespedes, r.estado_reserva,
+               c.nombre AS cliente_nombre, c.apellido AS cliente_apellido,
+               c.telefono AS cliente_telefono, c.correo AS cliente_correo,
+               h.numero AS habitacion_numero, h.observaciones AS habitacion_nombre,
+               t.nombre_tipo, t.precio_base
+        FROM RESERVAS r
+        INNER JOIN CLIENTES c ON c.id_cliente = r.id_cliente
+        INNER JOIN HABITACIONES h ON h.id_habitacion = r.id_habitacion
+        INNER JOIN TIPOS_HABITACION t ON t.id_tipo_habitacion = h.id_tipo_habitacion
+        WHERE r.id_reserva = %s
+        """,
+        (id_reserva,),
+    )
+
+    if not reserva:
+        return redirect(url_for("admin_bookings"))
+
+    folio_text = format_folio(id_reserva)
+    factura = get_factura_por_reserva(id_reserva)
+    pago_existente = None
+    if factura:
+        pago_existente = get_pago_por_factura(factura["id_factura"])
+
+    servicios = get_servicios_por_reserva(id_reserva)
+    consumos_total = round(sum(float(s["costo"]) for s in servicios), 2)
+    total_reserva = float(reserva["total_estimado"] or 0)
+    factura_total = float(factura["total"]) if factura else 0.0
+
+    pago_por_servicios = bool(servicios and factura and factura_total == total_reserva)
+    requiere_pago = (not pago_existente) or pago_por_servicios
+
+    if request.method == "POST":
+        titular = request.form.get("titular", "").strip()
+        tarjeta = request.form.get("tarjeta", "").strip()
+        vencimiento = request.form.get("vencimiento", "").strip()
+        cvv = request.form.get("cvv", "").strip()
+
+        if requiere_pago:
+            error = None
+            if not titular or not tarjeta or not vencimiento or not cvv:
+                error = "Debes completar todos los datos de pago para continuar."
+            elif len(tarjeta) < 12:
+                error = "El número de tarjeta parece incompleto."
+            elif len(cvv) < 3:
+                error = "El CVV parece incompleto."
+
+            if error:
+                return render_template(
+                    "admin_checkout.html",
+                    reserva=reserva,
+                    factura=factura,
+                    pago_existente=pago_existente,
+                    servicios=servicios,
+                    consumos_total=consumos_total,
+                    requiere_pago=requiere_pago,
+                    error=error,
+                    pago_form={
+                        "titular": titular,
+                        "tarjeta": tarjeta,
+                        "vencimiento": vencimiento,
+                        "cvv": cvv,
+                    },
+                    folio=folio_text,
+                )
+
+            referencia = f"{tarjeta[-4:]} | {titular} | {vencimiento}"
+
+            if not factura:
+                FabricaDocumento.crear_factura_y_pago(
+                    execute_query,
+                    id_reserva,
+                    reserva["id_cliente"],
+                    total_reserva + consumos_total,
+                    referencia=referencia,
+                )
+            else:
+                if not pago_existente:
+                    pago = Pago(factura["id_factura"], id_reserva, factura_total, referencia)
+                    pago.insertar(execute_query)
+                if pago_por_servicios:
+                    FabricaDocumento.crear_factura_y_pago(
+                        execute_query,
+                        id_reserva,
+                        reserva["id_cliente"],
+                        consumos_total,
+                        referencia=referencia,
+                    )
+                if factura["estado_factura"] != "pagada":
+                    execute_query(
+                        "UPDATE FACTURAS SET estado_factura = 'pagada' WHERE id_factura = %s",
+                        (factura["id_factura"],),
+                    )
+
         ya_checkout = fetch_one("SELECT id_checkout FROM CHECKOUT WHERE id_reserva = %s", (id_reserva,))
         if not ya_checkout:
-            svc.hacer_checkout(id_reserva, folio, admin_id)
+            svc.hacer_checkout(id_reserva, folio_text, admin_id)
 
-    return redirect(url_for("admin_bookings"))
+        return redirect(url_for("admin_bookings"))
+
+    return render_template(
+        "admin_checkout.html",
+        reserva=reserva,
+        factura=factura,
+        pago_existente=pago_existente,
+        servicios=servicios,
+        consumos_total=consumos_total,
+        requiere_pago=requiere_pago,
+        error=None,
+        pago_form={},
+        folio=folio_text,
+    )
 
 
 @app.route("/admin/bookings/cancelar/<folio>")
@@ -1273,7 +1892,9 @@ def admin_nueva_reservacion():
                 error = "La habitación seleccionada no está disponible."
             else:
                 noches = calcular_noches(fecha_entrada, fecha_salida)
-                total = calcular_total(habitacion["precio"], personas, noches)
+                empresa = get_empresa_por_id(id_empresa) if id_empresa else None
+                descuento_empresa = float(empresa.get("descuento", 0)) if empresa else 0.0
+                total = calcular_total(habitacion["precio"], personas, noches, descuento=descuento_empresa)
 
                 # =========================
                 # CREAR CLIENTE
@@ -1389,6 +2010,28 @@ def admin_nueva_reservacion():
         datos=datos,
         error=error,
     )
+
+# =========================
+# RUTAS FOOTER
+# =========================
+@app.route("/privacidad")
+def privacidad():
+    return render_template("privacidad.html")
+
+
+@app.route("/terminos")
+def terminos():
+    return render_template("terminos.html")
+
+
+@app.route("/prensa")
+def prensa():
+    return render_template("prensa.html")
+
+
+@app.route("/sostenibilidad")
+def sostenibilidad():
+    return render_template("sostenibilidad.html")
 
 
 if __name__ == "__main__":

@@ -192,6 +192,76 @@
         box-shadow: 0 10px 22px rgba(37, 99, 235, 0.18);
       }
 
+      .action-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-top: 8px;
+      }
+
+      .action-card {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .action-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        margin-bottom: 14px;
+        transition: all 0.25s ease;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+      }
+
+      .action-card strong {
+        display: block;
+        font-size: 16px;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 6px;
+        transition: color 0.2s ease;
+      }
+
+      .action-card span {
+        display: block;
+        font-size: 12px;
+        color: #64748b;
+        line-height: 1.5;
+      }
+
+      .action-card:hover {
+        background: #ffffff;
+        border-color: #2563eb;
+        transform: translateY(-3px);
+        box-shadow: 0 12px 24px rgba(37, 99, 235, 0.08);
+      }
+
+      .action-card:hover .action-icon {
+        background: #2563eb;
+        border-color: #2563eb;
+        color: #ffffff;
+        transform: scale(1.05);
+      }
+
+      .action-card:hover strong {
+        color: #2563eb;
+      }
+
       .stats-grid {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
@@ -476,8 +546,13 @@
         letter-spacing: 0.8px;
       }
 
+      .action-panel {
+        margin-bottom: 28px; 
+      }
+
       @media (max-width: 1200px) {
-        .stats-grid {
+        .stats-grid,
+        .action-grid {
           grid-template-columns: repeat(2, 1fr);
         }
         .content-grid {
@@ -501,7 +576,8 @@
           flex-direction: column;
           align-items: stretch;
         }
-        .stats-grid {
+        .stats-grid,
+        .action-grid {
           grid-template-columns: 1fr;
         }
         .hero-row h2 {
@@ -564,13 +640,44 @@
         <div class="hero-row">
           <div>
             <h2>Visión General</h2>
-            <p>Métricas de rendimiento de Plaza Delfino 2024.</p>
+            <p>Métricas de rendimiento de Plaza Delfino 2026.</p>
           </div>
 
           <div class="hero-actions">
             <a href="#" class="btn-primary">Datos en Tiempo Real</a>
           </div>
         </div>
+
+        <section class="panel action-panel">
+          <div class="panel-head">
+            <div>
+              <h3>Gestión de Gerencia</h3>
+              <p>
+                Acciones rápidas para administrar personal, habitaciones y
+                empresas.
+              </p>
+            </div>
+          </div>
+
+          <div class="action-grid">
+            <a href="{{ url_for('admin_staff') }}" class="action-card">
+              <strong>Personal</strong>
+              <span>Crear y editar cuentas con roles.</span>
+            </a>
+            <a href="{{ url_for('admin_rooms') }}" class="action-card">
+              <strong>Habitaciones</strong>
+              <span>Registrar habitaciones y actualizar estado.</span>
+            </a>
+            <a href="{{ url_for('admin_room_types') }}" class="action-card">
+              <strong>Tipos de habitación</strong>
+              <span>Modificar tarifa base y capacidad.</span>
+            </a>
+            <a href="{{ url_for('admin_companies') }}" class="action-card">
+              <strong>Empresas</strong>
+              <span>Administrar socios y tarifas preferenciales.</span>
+            </a>
+          </div>
+        </section>
 
         <div class="stats-grid" id="analytics">
           <article class="stat-card">
