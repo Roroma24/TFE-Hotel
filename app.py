@@ -428,6 +428,7 @@ def get_habitaciones_croquis_db():
                 "id": int(numero) if numero.isdigit() else numero,
                 "id_db": row["id_habitacion"],
                 "numero": numero,
+                "piso": row["piso"],
                 "nombre": row["observaciones"] or ROOM_NAMES.get(numero, f"Habitación {numero}"),
                 "tipo": row["nombre_tipo"],
                 "precio": float(row["precio_base"]),
@@ -480,6 +481,13 @@ def get_or_create_cliente(nombre_completo, email, telefono, documento_identidad=
         id_empresa = None
 
     if cliente:
+        # No sobreescribir datos ya guardados con valores vacíos: si esta
+        # llamada no trae documento/dirección/empresa, se conserva lo que
+        # ya existía en BD (evita que el flujo de /cobro borre los datos
+        # capturados en crear-cuenta).
+        documento_identidad = documento_identidad or cliente.get("documento_identidad")
+        direccion = direccion or cliente.get("direccion")
+        id_empresa = id_empresa if id_empresa is not None else cliente.get("id_empresa")
         execute_query(
             """
             UPDATE CLIENTES
@@ -1720,7 +1728,8 @@ def admin_check_out(folio):
     total_reserva = float(reserva["total_estimado"] or 0)
     factura_total = float(factura["total"]) if factura else 0.0
 
-    pago_por_servicios = bool(servicios and factura and factura_total == total_reserva)
+    # Cambiamos la lógica para que detecte si hay consumos nuevos sin amparar en la factura
+    pago_por_servicios = bool(servicios and factura and consumos_total > 0 and factura_total <= total_reserva)
     requiere_pago = (not pago_existente) or pago_por_servicios
 
     if request.method == "POST":
@@ -1771,7 +1780,9 @@ def admin_check_out(folio):
                 if not pago_existente:
                     pago = Pago(factura["id_factura"], id_reserva, factura_total, referencia)
                     pago.insertar(execute_query)
+                
                 if pago_por_servicios:
+                    # Registramos el pago de los puros consumos extra
                     FabricaDocumento.crear_factura_y_pago(
                         execute_query,
                         id_reserva,
@@ -1779,6 +1790,14 @@ def admin_check_out(folio):
                         consumos_total,
                         referencia=referencia,
                     )
+                    # === ARREGLO AQUÍ === 
+                    # Actualizamos la factura original para sumar los consumos y que deje de pedir pago cíclicamente
+                    nuevo_total_factura = factura_total + consumos_total
+                    execute_query(
+                        "UPDATE FACTURAS SET total = %s, estado_factura = 'pagada' WHERE id_factura = %s",
+                        (nuevo_total_factura, factura["id_factura"]),
+                    )
+
                 if factura["estado_factura"] != "pagada":
                     execute_query(
                         "UPDATE FACTURAS SET estado_factura = 'pagada' WHERE id_factura = %s",
@@ -1788,6 +1807,15 @@ def admin_check_out(folio):
         ya_checkout = fetch_one("SELECT id_checkout FROM CHECKOUT WHERE id_reserva = %s", (id_reserva,))
         if not ya_checkout:
             svc.hacer_checkout(id_reserva, folio_text, admin_id)
+            
+            execute_query(
+                """
+                UPDATE CHECKOUT 
+                SET cargos_adicionales = %s 
+                WHERE id_reserva = %s
+                """,
+                (consumos_total, id_reserva)
+            )
 
         return redirect(url_for("admin_bookings"))
 
@@ -1870,6 +1898,11 @@ def admin_nueva_reservacion():
         habitacion_id = request.form.get("habitacion_id", "").strip()
         checkin_directo = request.form.get("checkin_directo") == "on"
 
+        # === SE MOVIÓ LA CAPTURA DE DATOS DE PAGO PARA PODER VALIDARLOS ANTES ===
+        titular = request.form.get("titular", "").strip()
+        tarjeta = request.form.get("tarjeta", "").strip()
+        metodo_pago = request.form.get("metodo_pago", "Tarjeta")
+
         habitacion = get_habitacion_por_numero(habitacion_id)
         datos = {**request.form, "habitacion_id": habitacion_id, "checkin_directo": checkin_directo}
 
@@ -1877,6 +1910,9 @@ def admin_nueva_reservacion():
             error = "Debes completar los datos del cliente."
         elif not fecha_entrada or not fecha_salida:
             error = "Debes seleccionar entrada y salida."
+        # === NUEVA VALIDACIÓN: Verifica que existan datos de pago requeridos ===
+        elif not titular or not tarjeta:
+            error = "Debes completar todos los datos de pago (Titular y Tarjeta)."
         else:
             try:
                 fe = datetime.strptime(fecha_entrada, "%Y-%m-%d")
@@ -1885,6 +1921,7 @@ def admin_nueva_reservacion():
                     error = "La fecha de salida debe ser posterior a la fecha de entrada."
             except Exception:
                 error = "Fechas inválidas."
+                
         if not error:
             if not habitacion:
                 error = "Debes seleccionar una habitación."
@@ -1925,13 +1962,6 @@ def admin_nueva_reservacion():
                     noches=noches,
                     checkin_directo=checkin_directo,
                 )
-
-                # =========================
-                # DATOS DE PAGO
-                # =========================
-                titular = request.form.get("titular", "").strip()
-                tarjeta = request.form.get("tarjeta", "").strip()
-                metodo_pago = request.form.get("metodo_pago", "Tarjeta")
 
                 # =========================
                 # FACTURA
@@ -1995,7 +2025,7 @@ def admin_nueva_reservacion():
                     (
                         factura["id_factura"],
                         total_final,
-                        tarjeta[-4:] if tarjeta else "PAGO ADMIN",
+                        tarjeta[-4:], # Al estar validada, ya no fallará el slice
                         "aprobado",
                     ),
                 )
