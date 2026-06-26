@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash, check_password_hash
 from patterns.observer import gestor_eventos, ObservadorCorreo, ObservadorHabitacion, ObservadorLog
 from patterns.facade   import ServicioReservas
-from patterns.factory  import Pago, FabricaDocumento
+from patterns.factory  import Pago, FabricaDocumento, FabricaHabitacion
 from patterns.builder  import DirectorReporte, BuilderReporteHotel
 
 load_dotenv()
@@ -1537,9 +1537,12 @@ def admin_rooms():
 @admin_required
 @role_required("gerente")
 def admin_rooms_edit(habitacion_id):
-    habitacion = get_habitacion_por_id(habitacion_id)
-    if not habitacion:
+    habitacion_datos = get_habitacion_por_id(habitacion_id)
+    if not habitacion_datos:
         return redirect(url_for("admin_rooms"))
+
+    habitacion_objeto = FabricaHabitacion.crear(habitacion_datos)
+    habitacion = habitacion_objeto.to_dict()
 
     tipos = get_room_types()
     error = None
@@ -1562,10 +1565,10 @@ def admin_rooms_edit(habitacion_id):
 
     return render_template(
         "admin_rooms.html",
-        habitaciones=[habitacion],
+        habitaciones=[habitacion],  
         tipos=tipos,
         error=error,
-        selected_room=habitacion,
+        selected_room=habitacion,  
     )
 
 
