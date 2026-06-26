@@ -1729,8 +1729,8 @@ def admin_check_out(folio):
     factura_total = float(factura["total"]) if factura else 0.0
 
     # Cambiamos la lógica para que detecte si hay consumos nuevos sin amparar en la factura
-    pago_por_servicios = bool(servicios and factura and consumos_total > 0 and factura_total <= total_reserva)
-    requiere_pago = (not pago_existente) or pago_por_servicios
+    # Si no hay un pago en absoluto (reserva nueva sin pagar) OR si hay consumos extra registrados
+    requiere_pago = (not pago_existente) or (consumos_total > 0)
 
     if request.method == "POST":
         titular = request.form.get("titular", "").strip()
@@ -1781,7 +1781,7 @@ def admin_check_out(folio):
                     pago = Pago(factura["id_factura"], id_reserva, factura_total, referencia)
                     pago.insertar(execute_query)
                 
-                if pago_por_servicios:
+                if consumos_total > 0:
                     # Registramos el pago de los puros consumos extra
                     FabricaDocumento.crear_factura_y_pago(
                         execute_query,
@@ -1790,7 +1790,6 @@ def admin_check_out(folio):
                         consumos_total,
                         referencia=referencia,
                     )
-                    # === ARREGLO AQUÍ === 
                     # Actualizamos la factura original para sumar los consumos y que deje de pedir pago cíclicamente
                     nuevo_total_factura = factura_total + consumos_total
                     execute_query(
