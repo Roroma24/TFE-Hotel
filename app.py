@@ -1085,6 +1085,17 @@ def cobro():
                 noches=detalle["noches"],
             )
 
+        gestor_eventos.notificar("pago_realizado", {
+            "folio": resultado["folio"],
+            "id_habitacion": id_habitacion,
+            "cliente": {
+                "nombre": cliente.get("nombre", ""),
+                "email": cliente.get("email", ""),
+            },
+            "detalle": detalle,
+            "monto_pagado": float(detalle.get("total", 0) or 0),
+        })
+
         confirmacion = {
             "folio": resultado["folio"],
             "cliente": cliente,
@@ -1731,8 +1742,7 @@ def admin_check_out(folio):
     total_reserva = float(reserva["total_estimado"] or 0)
     factura_total = float(factura["total"]) if factura else 0.0
 
-    # Cambiamos la lógica para que detecte si hay consumos nuevos sin amparar en la factura
-    # Si no hay un pago en absoluto (reserva nueva sin pagar) OR si hay consumos extra registrados
+    # Si no hay un pago en absoluto (reserva nueva sin pagar) or si hay consumos extra registrados
     requiere_pago = (not pago_existente) or (consumos_total > 0)
 
     if request.method == "POST":
@@ -1900,7 +1910,6 @@ def admin_nueva_reservacion():
         habitacion_id = request.form.get("habitacion_id", "").strip()
         checkin_directo = request.form.get("checkin_directo") == "on"
 
-        # === SE MOVIÓ LA CAPTURA DE DATOS DE PAGO PARA PODER VALIDARLOS ANTES ===
         titular = request.form.get("titular", "").strip()
         tarjeta = request.form.get("tarjeta", "").strip()
         metodo_pago = request.form.get("metodo_pago", "Tarjeta")
@@ -1912,7 +1921,7 @@ def admin_nueva_reservacion():
             error = "Debes completar los datos del cliente."
         elif not fecha_entrada or not fecha_salida:
             error = "Debes seleccionar entrada y salida."
-        # === NUEVA VALIDACIÓN: Verifica que existan datos de pago requeridos ===
+        # Verifica que existan datos de pago requeridos
         elif not titular or not tarjeta:
             error = "Debes completar todos los datos de pago (Titular y Tarjeta)."
         else:
@@ -2027,7 +2036,7 @@ def admin_nueva_reservacion():
                     (
                         factura["id_factura"],
                         total_final,
-                        tarjeta[-4:], # Al estar validada, ya no fallará el slice
+                        tarjeta[-4:], 
                         "aprobado",
                     ),
                 )
